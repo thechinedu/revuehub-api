@@ -1,8 +1,8 @@
 {
-  "name": "nest-typescript-starter",
+  "name": "revuehub-api",
   "private": true,
   "version": "1.0.0",
-  "description": "Nest TypeScript starter repository",
+  "description": "RevueHub - Review github repositories without the need for pull requests",
   "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -17,12 +17,21 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "knex": "node -r dotenv/config ./node_modules/.bin/knex",
+    "migrate:create": "yarn knex migrate:make $1 -x ts",
+    "migrate:latest": "yarn knex migrate:latest",
+    "migrate:up": "yarn knex migrate:up",
+    "migrate:down": "yarn knex migrate:down",
+    "migrate:rollback": "yarn knex migrate:rollback"
   },
   "dependencies": {
     "@nestjs/common": "^8.1.1",
     "@nestjs/core": "^8.1.1",
     "@nestjs/platform-express": "^8.1.1",
+    "dotenv": "^16.0.1",
+    "knex": "^2.1.0",
+    "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.4.0"
@@ -47,7 +56,7 @@
     "ts-jest": "^27.0.7",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.3.0",
-    "tsconfig-paths": "^3.11.0",
+    "tsconfig-paths": "^4.0.0",
     "typescript": "^4.4.4"
   },
   "jest": {
