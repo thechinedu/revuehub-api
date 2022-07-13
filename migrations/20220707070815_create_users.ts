@@ -4,6 +4,9 @@ export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable('users', (table) => {
     table.increments();
     table.string('email', 255);
+    table.string('password_digest', 64);
+    table.boolean('email_verified').defaultTo(false);
+    table.string('provider', 255);
     table.timestamps(false, true);
   });
 }
