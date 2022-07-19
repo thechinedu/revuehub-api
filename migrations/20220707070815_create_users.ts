@@ -3,10 +3,13 @@ import { Knex } from 'knex';
 export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable('users', (table) => {
     table.increments();
-    table.string('email', 255);
+    table.string('email', 255); // TODO: ensure uniqueness, add index, case insensitive
+    table.string('username', 255); // TODO: ensure uniqueness, add index, case insensitive
     table.string('password_digest', 64);
     table.boolean('email_verified').defaultTo(false);
     table.string('provider', 255);
+    table.string('full_name', 255);
+    table.string('profile_image_url', 255);
     table.timestamps(false, true);
   });
 }
