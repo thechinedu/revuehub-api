@@ -1,4 +1,5 @@
-import { Controller, Post } from '@nestjs/common';
+import { ValidationPipe } from '@/utils';
+import { Controller, Post, UsePipes } from '@nestjs/common';
 
 @Controller({
   path: 'users',
