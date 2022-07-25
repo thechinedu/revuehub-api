@@ -1,5 +1,8 @@
 import { ValidationPipe } from '@/utils';
-import { Controller, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+
+import { CreateUserDto } from './dto/create-user-dto';
+import { createUserValidator } from './validators/create-user.validator';
 
 @Controller({
   path: 'users',
@@ -7,7 +10,9 @@ import { Controller, Post, UsePipes } from '@nestjs/common';
 })
 export class UsersController {
   @Post()
-  createUser() {
+  @UsePipes(new ValidationPipe(createUserValidator))
+  createUser(@Body() createUserDto: CreateUserDto) {
+    console.log({ createUserDto });
     return 'user created';
   }
 }
