@@ -3,8 +3,8 @@ import { Knex } from 'knex';
 export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable('users', (table) => {
     table.increments();
-    table.string('email', 255); // TODO: ensure uniqueness, add index, case insensitive
-    table.string('username', 255); // TODO: ensure uniqueness, add index, case insensitive
+    table.string('email', 255).unique();
+    table.string('username', 255).unique();
     table.string('password_digest', 64);
     table.boolean('email_verified').defaultTo(false);
     table.string('provider', 255);
