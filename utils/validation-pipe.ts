@@ -3,19 +3,25 @@ import { ObjectSchema } from 'joi';
 
 export type Validator<T = any> = {
   schema: ObjectSchema<T>;
-  beforeValidate: (value: unknown) => void;
-  afterValidate: (value: unknown) => void;
+  beforeValidate?: (value: unknown) => unknown;
+  afterValidate?: (value: unknown) => unknown;
 };
 
 @Injectable()
 export class ValidationPipe implements PipeTransform {
   constructor(private validator: Validator) {}
 
-  transform(value: unknown) {
-    const { error } = this.validator.schema.validate(value);
-    if (error) {
+  async transform(value: unknown) {
+    try {
+      const transformedValue = this.validator?.beforeValidate(value) || value;
+      await this.validator.schema.validateAsync(transformedValue);
+
+      // transformedValue =
+      //   this.validator?.afterValidate(transformedValue) || transformedValue;
+
+      return transformedValue;
+    } catch (error) {
       throw new BadRequestException(error.details);
     }
-    return value;
   }
 }
