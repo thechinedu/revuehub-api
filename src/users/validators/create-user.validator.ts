@@ -1,20 +1,41 @@
-import { hashPassword, Validator } from '@/utils';
+import { db } from '@/db';
+import { Validator } from '@/utils';
 import Joi from 'joi';
 
 import { CreateUserDto } from '../dto/create-user-dto';
 
 const { object, string } = Joi.types();
 
-const validateEmailUniqueness = (value: string) => {
-  return value;
-};
+const validateUniqueness =
+  (field: 'email' | 'username') => async (value: string) => {
+    const res = await db('users').where(field, value);
+
+    if (res.length) {
+      throw new Joi.ValidationError(
+        'Not unique',
+        [{ message: `${field} ${value} is not available` }],
+        () => null,
+      );
+    }
+
+    return value;
+  };
 
 export const schema: Joi.ObjectSchema<CreateUserDto> = object.keys({
   email: string
     .email()
     .required()
-    .external(validateEmailUniqueness, 'Check that provided email is unique'),
-  username: string.required(),
+    .external(
+      validateUniqueness('email'),
+      'Check that the provided email is unique',
+    ),
+  username: string
+    .pattern(/^[a-z0-9]+[a-z0-9\-]*$/)
+    .required()
+    .external(
+      validateUniqueness('username'),
+      'Check that the provided username is unique',
+    ),
   password: string.min(8).alphanum().required(),
   full_name: string,
 });
@@ -25,13 +46,7 @@ const beforeValidate = (createUserDto: CreateUserDto) => ({
   username: createUserDto.username?.toLowerCase(),
 });
 
-const afterValidate = async ({ password, ...dto }: CreateUserDto) => ({
-  ...dto,
-  password_digest: await hashPassword(password),
-});
-
 export const createUserValidator: Validator<CreateUserDto> = {
   schema,
   beforeValidate,
-  afterValidate,
 };

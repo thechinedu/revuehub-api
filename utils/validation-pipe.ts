@@ -14,10 +14,9 @@ export class ValidationPipe implements PipeTransform {
   async transform(value: unknown) {
     try {
       const transformedValue = this.validator?.beforeValidate(value) || value;
-      await this.validator.schema.validateAsync(transformedValue);
-
-      // transformedValue =
-      //   this.validator?.afterValidate(transformedValue) || transformedValue;
+      await this.validator.schema.validateAsync(transformedValue, {
+        abortEarly: false,
+      });
 
       return transformedValue;
     } catch (error) {
