@@ -1,9 +1,14 @@
 import type { Knex } from 'knex';
 
-type environment = 'development' | 'staging' | 'production';
+type environment = 'development' | 'test' | 'staging' | 'production';
 
 const config: { [key in environment]: Knex.Config } = {
   development: {
+    client: 'pg',
+    connection: process.env.DATABASE_URL,
+  },
+
+  test: {
     client: 'pg',
     connection: process.env.DATABASE_URL,
   },
