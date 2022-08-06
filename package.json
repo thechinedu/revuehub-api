@@ -27,7 +27,7 @@
     "migrate:rollback": "yarn knex migrate:rollback"
   },
   "dependencies": {
-    "@nestjs/common": "^9.0.1",
+    "@nestjs/common": "^9.0.8",
     "@nestjs/core": "^9.0.1",
     "@nestjs/platform-express": "^9.0.1",
     "argon2": "^0.28.7",
