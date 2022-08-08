@@ -27,13 +27,13 @@
     "migrate:rollback": "yarn knex migrate:rollback"
   },
   "dependencies": {
-    "@nestjs/common": "^9.0.1",
+    "@nestjs/common": "^9.0.8",
     "@nestjs/core": "^9.0.1",
     "@nestjs/platform-express": "^9.0.1",
     "argon2": "^0.28.7",
     "dotenv": "^16.0.1",
     "joi": "^17.6.0",
-    "knex": "^2.1.0",
+    "knex": "^2.2.0",
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
