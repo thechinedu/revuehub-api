@@ -6,6 +6,12 @@ import { CreateUserDto } from '../dto/create-user-dto';
 
 const { object, string } = Joi.types();
 
+// TODO:
+// Customise the message returned by Joi to user friendly messages
+//  Loop over error.details
+//  Modify the error message based on the type field
+//  Return an object in the form { [field]: [error message] } for every error object in the error.details array
+
 const validateUniqueness =
   (field: 'email' | 'username') => async (value: string) => {
     const res = await db('users').where(field, value);
@@ -30,13 +36,13 @@ export const schema: Joi.ObjectSchema<CreateUserDto> = object.keys({
       'Check that the provided email is unique',
     ),
   username: string
-    .pattern(/^[a-z0-9]+[a-z0-9\-]*$/)
+    .pattern(/^[a-z0-9](\-?[a-z0-9])*$/)
     .required()
     .external(
       validateUniqueness('username'),
       'Check that the provided username is unique',
     ),
-  password: string.min(8).alphanum().required(),
+  password: string.min(8).required(),
   full_name: string,
 });
 
