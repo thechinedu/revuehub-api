@@ -1,6 +1,6 @@
 import { db } from '@/db';
 import { Validator } from '@/utils';
-import Joi from 'joi';
+import Joi, { ValidationErrorItem } from 'joi';
 
 import { CreateUserDto } from '../dto/create-user-dto';
 
@@ -19,7 +19,7 @@ const validateUniqueness =
     if (res.length) {
       throw new Joi.ValidationError(
         'Not unique',
-        [{ message: `${field} ${value} is not available` }],
+        [{ [field]: `${value} is not available` }],
         () => null,
       );
     }
@@ -43,8 +43,25 @@ export const schema: Joi.ObjectSchema<CreateUserDto> = object.keys({
       'Check that the provided username is unique',
     ),
   password: string.min(8).required(),
-  full_name: string,
 });
+
+const emailValidationMessages = {
+  'string.email': { email: 'The provided email address is not valid.' },
+  'any.required': { email: 'No email address provided.' },
+};
+
+const usernameValidationMessages = {
+  'string.pattern.base': {
+    username:
+      'Username can only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen.',
+  },
+  'any.required': { username: 'No username provided.' },
+};
+
+const passwordValidationMessages = {
+  'string.min': { password: 'Password should be a minimum of 8 characters.' },
+  'any.required': { password: 'No password provided.' },
+};
 
 const beforeValidate = (createUserDto: CreateUserDto) => ({
   ...createUserDto,
@@ -55,4 +72,21 @@ const beforeValidate = (createUserDto: CreateUserDto) => ({
 export const createUserValidator: Validator<CreateUserDto> = {
   schema,
   beforeValidate,
+  serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => {
+    const actions = {
+      email: emailValidationMessages,
+      username: usernameValidationMessages,
+      password: passwordValidationMessages,
+    };
+    const acc = {};
+
+    errorDetails.forEach((details) => {
+      const { context, type } = details;
+      const messageRecord = actions[context?.key]?.[type] || details;
+
+      Object.assign(acc, messageRecord);
+    });
+
+    return { data: acc };
+  },
 };
