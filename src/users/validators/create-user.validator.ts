@@ -1,50 +1,58 @@
 import { db } from '@/db';
 import { Validator } from '@/utils';
-import Joi, { ValidationErrorItem } from 'joi';
+import Joi, {
+  CustomValidator,
+  ExternalValidationFunction,
+  ValidationErrorItem,
+} from 'joi';
+import zxcvbn from 'zxcvbn';
 
 import { CreateUserDto } from '../dto/create-user-dto';
 
 const { object, string } = Joi.types();
 
-// TODO:
-// Customise the message returned by Joi to user friendly messages
-//  Loop over error.details
-//  Modify the error message based on the type field
-//  Return an object in the form { [field]: [error message] } for every error object in the error.details array
+const validateUniqueness: (
+  field: 'email' | 'username',
+) => ExternalValidationFunction = (field) => async (value: string) => {
+  const res = await db('users').where(field, value);
 
-const validateUniqueness =
-  (field: 'email' | 'username') => async (value: string) => {
-    const res = await db('users').where(field, value);
+  if (res.length) {
+    throw new Joi.ValidationError(
+      'Not unique',
+      [{ [field]: `${value} is not available` }],
+      () => null,
+    );
+  }
 
-    if (res.length) {
-      throw new Joi.ValidationError(
-        'Not unique',
-        [{ [field]: `${value} is not available` }],
-        () => null,
-      );
-    }
+  return value;
+};
 
-    return value;
-  };
+const validatePasswordStrength: CustomValidator<string> = (value, helpers) => {
+  const VALID_PASSWORD_SCORE = 4;
+  const {
+    state: { ancestors },
+  } = helpers;
+  const { email = '', username = '' } = ancestors?.[0];
+  const disallowedValues = [email, username];
+  const passwordStrength = zxcvbn(value, disallowedValues);
+
+  if (passwordStrength.score < VALID_PASSWORD_SCORE) {
+    return helpers.error('any.invalid');
+  }
+
+  return value;
+};
 
 export const schema: Joi.ObjectSchema<CreateUserDto> = object.keys({
-  email: string
-    .email()
-    .required()
-    .external(
-      validateUniqueness('email'),
-      'Check that the provided email is unique',
-    ),
+  email: string.email().required().external(validateUniqueness('email')),
   username: string
     .pattern(/^[a-z0-9](\-?[a-z0-9])*$/)
     .required()
-    .external(
-      validateUniqueness('username'),
-      'Check that the provided username is unique',
-    ),
-  password: string.min(8).required(),
+    .external(validateUniqueness('username')),
+  password: string.min(8).required().custom(validatePasswordStrength),
 });
 
+// TODO: add custom message for empty fields e.g email = "", password = ""
 const emailValidationMessages = {
   'string.email': { email: 'The provided email address is not valid.' },
   'any.required': { email: 'No email address provided.' },
@@ -61,6 +69,10 @@ const usernameValidationMessages = {
 const passwordValidationMessages = {
   'string.min': { password: 'Password should be a minimum of 8 characters.' },
   'any.required': { password: 'No password provided.' },
+  'any.invalid': {
+    password:
+      'Password is not secure enough. Password should be a minimum of 8 characters including uppercase and lowercase letters, numbers and symbols.',
+  },
 };
 
 const beforeValidate = (createUserDto: CreateUserDto) => ({

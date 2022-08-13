@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  PipeTransform,
+} from '@nestjs/common';
 import { ObjectSchema, ValidationErrorItem } from 'joi';
 
 export type Validator<T = any> = {
@@ -26,7 +31,11 @@ export class ValidationPipe implements PipeTransform {
       const validationErrorMessages = validator.serializeValidationMessages(
         error.details,
       );
-      throw new BadRequestException(validationErrorMessages);
+
+      throw new HttpException(
+        { status: 'fail', ...validationErrorMessages },
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }
