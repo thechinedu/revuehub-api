@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@nestjs/common": "^9.0.8",
-    "@nestjs/core": "^9.0.1",
+    "@nestjs/core": "^9.0.9",
     "@nestjs/platform-express": "^9.0.8",
     "argon2": "^0.28.7",
     "dotenv": "^16.0.1",
