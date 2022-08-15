@@ -1,7 +1,16 @@
+import { Response } from '@/types'; // TODO: use this to indicate the type of value returned from the controller
 import { ValidationPipe } from '@/utils';
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Post,
+  UseInterceptors,
+  UsePipes,
+} from '@nestjs/common';
 
 import { CreateUserDto } from './dto/create-user-dto';
+import { UserSerializer } from './user.serializer';
 import { UserService } from './user.service';
 import { createUserValidator } from './validators/create-user.validator';
 
@@ -14,8 +23,14 @@ export class UsersController {
 
   @Post()
   @UsePipes(new ValidationPipe(createUserValidator))
-  createUser(@Body() createUserDto: CreateUserDto) {
-    console.log('Controlling the request', createUserDto);
-    return this.userService.createUser(createUserDto);
+  @UseInterceptors(ClassSerializerInterceptor)
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    const userEntity = await this.userService.createUser(createUserDto);
+    const data = new UserSerializer(userEntity);
+
+    return {
+      status: 'success',
+      data,
+    };
   }
 }

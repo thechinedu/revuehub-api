@@ -52,23 +52,25 @@ export const schema: Joi.ObjectSchema<CreateUserDto> = object.keys({
   password: string.min(8).required().custom(validatePasswordStrength),
 });
 
-// TODO: add custom message for empty fields e.g email = "", password = ""
 const emailValidationMessages = {
-  'string.email': { email: 'The provided email address is not valid.' },
-  'any.required': { email: 'No email address provided.' },
+  'string.email': { email: 'The provided email address is not valid' },
+  'string.empty': { email: 'Email address cannot be empty' },
+  'any.required': { email: 'No email address provided' },
 };
 
 const usernameValidationMessages = {
   'string.pattern.base': {
     username:
-      'Username can only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen.',
+      'Username can only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen',
   },
-  'any.required': { username: 'No username provided.' },
+  'string.empty': { username: 'Username cannot be empty' },
+  'any.required': { username: 'No username provided' },
 };
 
 const passwordValidationMessages = {
-  'string.min': { password: 'Password should be a minimum of 8 characters.' },
-  'any.required': { password: 'No password provided.' },
+  'string.min': { password: 'Password should be a minimum of 8 characters' },
+  'string.empty': { password: 'Password cannot be empty' },
+  'any.required': { password: 'No password provided' },
   'any.invalid': {
     password:
       'Password is not secure enough. Password should be a minimum of 8 characters including uppercase and lowercase letters, numbers and symbols.',

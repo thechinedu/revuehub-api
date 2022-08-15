@@ -1,6 +1,6 @@
 import { AppModule } from '@/src/app.module';
 import { db } from '@/db';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
@@ -27,17 +27,23 @@ describe('User signup', () => {
     await db.migrate.rollback();
   });
 
+  afterAll(() => {
+    app.close();
+    db.destroy();
+  });
+
   describe('when the request body is valid', () => {
     it('/v1/users (POST)', async () => {
       const res = await request(app.getHttpServer()).post('/v1/users').send({
         email: 'testymctestface@test.com',
-        password: 'supers3cret',
+        password: 'mein passwort ist super',
         username: 'testy',
       });
 
-      console.log({ body: res.body });
+      const { body, statusCode } = res;
 
-      expect(4).toBe(4);
+      expect(statusCode).toBe(HttpStatus.CREATED);
+      expect(body.status).toBe('success');
     });
   });
 });
