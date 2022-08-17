@@ -59,22 +59,38 @@ describe('User signup', () => {
       key: 'email',
       properties: [
         {
-          value: null,
           message: 'No email address provided',
         },
         {
-          value: '',
           message: 'Email address cannot be empty',
+        },
+        {
+          message: `${requestBody.email} is not available`,
+          overrideField: 'username',
+          overrideValue: 'testy-testy',
         },
       ],
     },
     {
       key: 'username',
       properties: [
-        { value: null, message: 'No username provided' },
+        { message: 'No username provided' },
         {
-          value: '',
           message: 'Username cannot be empty',
+        },
+        {
+          message: `${requestBody.username} is not available`,
+          overrideField: 'email',
+          overrideValue: 'testymctestface2@test.com',
+        },
+      ],
+    },
+    {
+      key: 'password',
+      properties: [
+        { message: 'No password provided' },
+        {
+          message: 'Password cannot be empty',
         },
       ],
     },
@@ -82,94 +98,106 @@ describe('User signup', () => {
     'User signup is disallowed when $key is invalid',
     ({ key, properties }) => {
       test(`when ${key} is not provided`, async () => {
+        const { message } = properties[0];
         const res = await request(app.getHttpServer())
           .post('/v1/users')
-          .send({ ...requestBody, [key]: properties[0].value });
+          .send({ ...requestBody, [key]: null });
 
         const { body, statusCode } = res;
 
         expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
         expect(body.status).toBe('fail');
         expect(body.data).toMatchObject({
-          [key]: properties[0].message,
+          [key]: message,
         });
       });
 
-      test(`when ${key} is empty`, async () => {
-        const res = await request(app.getHttpServer())
-          .post('/v1/users')
-          .send({ ...requestBody, [key]: properties[1].value });
+      if (properties[1]) {
+        test(`when ${key} is empty`, async () => {
+          const { message } = properties[1];
+          const res = await request(app.getHttpServer())
+            .post('/v1/users')
+            .send({ ...requestBody, [key]: '' });
 
-        const { body, statusCode } = res;
+          const { body, statusCode } = res;
 
-        expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
-        expect(body.status).toBe('fail');
-        expect(body.data).toMatchObject({
-          [key]: properties[1].message,
+          expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(body.status).toBe('fail');
+          expect(body.data).toMatchObject({
+            [key]: message,
+          });
         });
+      }
+
+      if (properties[2]) {
+        test(`when ${key} is already in use by another user`, async () => {
+          const { message, overrideField, overrideValue } = properties[2];
+          await request(app.getHttpServer())
+            .post('/v1/users')
+            .send(requestBody);
+
+          const res = await request(app.getHttpServer())
+            .post('/v1/users')
+            .send({
+              ...requestBody,
+              [key]: requestBody[key],
+              [overrideField]: overrideValue,
+            });
+
+          const { body, statusCode } = res;
+
+          expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(body.status).toBe('fail');
+          expect(body.data).toMatchObject({
+            [key]: message,
+          });
+        });
+      }
+    },
+  );
+
+  test.each(['testy', '@testy', 'testy-', 'testy@test', 'testy@123'])(
+    "User signup is disallowed when email doesn't match expected pattern",
+    async (email) => {
+      const res = await request(app.getHttpServer())
+        .post('/v1/users')
+        .send({ ...requestBody, email });
+
+      const { body, statusCode } = res;
+
+      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+      expect(body.status).toBe('fail');
+      expect(body.data).toMatchObject({
+        email: 'The provided email address is not valid',
       });
     },
   );
 
-  xdescribe('User signup is disallowed when email is invalid', () => {
-    // test('When email is not provided', async () => {
-    //   const res = await request(app.getHttpServer())
-    //     .post('/v1/users')
-    //     .send({ ...requestBody, email: null });
-
-    //   const { body, statusCode } = res;
-
-    //   expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
-    //   expect(body.status).toBe('fail');
-    //   expect(body.data).toMatchObject({
-    //     email: 'No email address provided',
-    //   });
-    // });
-
-    // test('When email is empty', async () => {
-    //   const res = await request(app.getHttpServer())
-    //     .post('/v1/users')
-    //     .send({ ...requestBody, email: '' });
-
-    //   const { body, statusCode } = res;
-
-    //   expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
-    //   expect(body.status).toBe('fail');
-    //   expect(body.data).toMatchObject({
-    //     email: 'Email address cannot be empty',
-    //   });
-    // });
-
-    test('when email is already in use by another user', () => {});
-  });
-
-  xdescribe('User signup is disallowed when username is invalid', () => {
-    test('When username is not provided', async () => {
+  test.each([
+    '123456789',
+    'revue',
+    'revueHub',
+    'password123',
+    'supers3cret',
+    'REVUEHUBs',
+    'zxcvbn',
+    'qwerty',
+    'abcdefgh',
+  ])(
+    'User signup is disallowed when password is insecure',
+    async (password) => {
       const res = await request(app.getHttpServer())
         .post('/v1/users')
-        .send({ ...requestBody, username: null });
+        .send({ ...requestBody, password });
 
       const { body, statusCode } = res;
 
       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
       expect(body.status).toBe('fail');
       expect(body.data).toMatchObject({
-        username: 'No username provided',
+        password:
+          'Password is not secure enough. Password should be a minimum of 8 characters including uppercase and lowercase letters, numbers and symbols',
       });
-    });
-
-    test('When username is empty', async () => {
-      const res = await request(app.getHttpServer())
-        .post('/v1/users')
-        .send({ ...requestBody, username: '' });
-
-      const { body, statusCode } = res;
-
-      expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
-      expect(body.status).toBe('fail');
-      expect(body.data).toMatchObject({
-        username: 'Username cannot be empty',
-      });
-    });
-  });
+    },
+  );
 });

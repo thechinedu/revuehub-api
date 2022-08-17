@@ -71,9 +71,10 @@ const passwordValidationMessages = {
   'string.min': { password: 'Password should be a minimum of 8 characters' },
   'string.empty': { password: 'Password cannot be empty' },
   'any.required': { password: 'No password provided' },
+  'string.base': { password: 'No password provided' },
   'any.invalid': {
     password:
-      'Password is not secure enough. Password should be a minimum of 8 characters including uppercase and lowercase letters, numbers and symbols.',
+      'Password is not secure enough. Password should be a minimum of 8 characters including uppercase and lowercase letters, numbers and symbols',
   },
 };
 
