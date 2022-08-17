@@ -1,4 +1,3 @@
-import { Response } from '@/types'; // TODO: use this to indicate the type of value returned from the controller
 import { ValidationPipe } from '@/utils';
 import {
   Body,
