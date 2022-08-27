@@ -1,7 +1,9 @@
-import { db } from '@/db';
+import { db, memoryStore } from '@/db';
 import { hashPassword } from '@/utils';
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 
+import { CreateOauthStateDto } from './dto/create-oauth-state-dto';
 import { CreateUserDto } from './dto/create-user-dto';
 
 export type UserEntity = {
@@ -26,5 +28,13 @@ export class UserModel {
         .into('users')
         .returning('*')
     )[0];
+  }
+
+  async createOauthState({ provider }: CreateOauthStateDto) {
+    // const state = randomUUID()
+    // await memoryStore.set(state, provider)
+    // (await memoryStore).set('key', 'value');
+
+    return 'fancy-state';
   }
 }
