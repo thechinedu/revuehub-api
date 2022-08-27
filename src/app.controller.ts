@@ -7,7 +7,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHome(): string {
+  getHome() {
     return this.appService.getHello();
   }
 }

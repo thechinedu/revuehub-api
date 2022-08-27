@@ -2,7 +2,12 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Welcome to the RevueHub API';
+  getHello() {
+    return {
+      status: 'success',
+      data: {
+        message: 'Welcome to the RevueHub API',
+      },
+    };
   }
 }

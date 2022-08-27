@@ -12,3 +12,7 @@ const hashOptions = {
 
 export const hashPassword: HashPasswordFn = async (password) =>
   await argon2.hash(password, hashOptions);
+
+export const generateState = () => {
+  // noop
+};
