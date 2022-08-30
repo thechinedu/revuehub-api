@@ -7,8 +7,9 @@ import {
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
-import { CreateOauthStateDto } from './dto/create-oauth-state-dto';
 
+import { CreateOauthStateDto } from './dto/create-oauth-state-dto';
+import { CreateOauthUserDto } from './dto/create-oauth-user-dto';
 import { CreateUserDto } from './dto/create-user-dto';
 import { UserSerializer } from './user.serializer';
 import { UserService } from './user.service';
@@ -34,6 +35,7 @@ export class UsersController {
     };
   }
 
+  // TODO: Add validation for the request body
   @Post('/oauth/state')
   async createOauthState(@Body() createOauthStateDto: CreateOauthStateDto) {
     const state = await this.userService.createOauthState(createOauthStateDto);
@@ -43,6 +45,16 @@ export class UsersController {
       data: {
         state,
       },
+    };
+  }
+
+  // TODO: Add validation for the request body
+  @Post('/oauth/new')
+  createOauthUser(@Body() createOauthUserDto: CreateOauthUserDto) {
+    this.userService.createOauthUser(createOauthUserDto);
+
+    return {
+      status: 'success',
     };
   }
 }
