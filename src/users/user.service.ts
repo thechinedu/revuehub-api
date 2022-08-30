@@ -23,7 +23,7 @@ export class UserService {
   }
 
   async createOauthUser(createOauthUserDto: CreateOauthUserDto) {
-    // oauthProvider = new OAuthProvider(provider)
+    // oauthProvider = getOauthProvider(provider)
     // accessToken = oauthProvider.exchangeCodeForAccessToken(code)
     // if accessToken -> authorized successfully
     // else -> an error occured. return failure response
