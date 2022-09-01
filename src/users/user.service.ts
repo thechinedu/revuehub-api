@@ -21,8 +21,9 @@ export class UserService {
 
   async createOauthUser(createOauthUserDto: CreateOauthUserDto) {
     // console.log({ getOAuthProvider, OAuthProviders });
-    const oauthProvider = getOAuthProvider(OAuthProviders.GITHUB);
+    const oauthProvider = getOAuthProvider(OAuthProviders.GITHUB); // TODO: use oauth provider passed in from client
     const userInfo = await oauthProvider.getUserInfo(createOauthUserDto);
+    console.log(userInfo.data);
 
     // accessToken = oauthProvider.exchangeCodeForAccessToken(code)
     // if accessToken -> authorized successfully
