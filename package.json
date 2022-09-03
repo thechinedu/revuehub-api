@@ -34,7 +34,7 @@
     "@octokit/request": "^6.2.1",
     "argon2": "^0.29.1",
     "class-transformer": "^0.5.1",
-    "dotenv": "^16.0.1",
+    "dotenv": "^16.0.2",
     "joi": "^17.6.0",
     "knex": "^2.3.0",
     "pg": "^8.8.0",
