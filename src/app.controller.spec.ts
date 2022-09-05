@@ -16,7 +16,10 @@ describe('AppController', () => {
   describe('getHome', () => {
     it('should return "Welcome to the RevueHub API"', () => {
       const appController = app.get<AppController>(AppController);
-      expect(appController.getHome()).toBe('Welcome to the RevueHub API');
+      expect(appController.getHome()).toStrictEqual({
+        data: { message: 'Welcome to the RevueHub API' },
+        status: 'success',
+      });
     });
   });
 });

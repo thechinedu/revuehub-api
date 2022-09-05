@@ -4,12 +4,12 @@ import {
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
-import { ObjectSchema, ValidationErrorItem } from 'joi';
+import { ObjectSchema, ValidationError, ValidationErrorItem } from 'joi';
 
 export type Validator<T = any> = {
   schema: ObjectSchema<T>;
-  beforeValidate?: (value: unknown) => unknown;
-  afterValidate?: (value: unknown) => unknown;
+  beforeValidate?: (value: T) => T;
+  afterValidate?: (value: T) => T;
   serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => any;
 };
 
@@ -21,15 +21,19 @@ export class ValidationPipe implements PipeTransform {
     const { validator } = this;
 
     try {
-      const transformedValue = validator?.beforeValidate(value) || value;
-      await validator.schema.validateAsync(transformedValue, {
+      const transformedValueBeforeValidation =
+        validator?.beforeValidate?.(value) || value;
+      await validator.schema.validateAsync(transformedValueBeforeValidation, {
         abortEarly: false,
       });
+      const transformedValue =
+        validator?.afterValidate?.(transformedValueBeforeValidation) ||
+        transformedValueBeforeValidation;
 
       return transformedValue;
-    } catch (error) {
+    } catch (error: unknown) {
       const validationErrorMessages = validator.serializeValidationMessages(
-        error.details,
+        (error as ValidationError).details,
       );
 
       throw new HttpException(

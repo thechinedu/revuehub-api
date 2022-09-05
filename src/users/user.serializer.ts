@@ -1,4 +1,4 @@
-import { Exclude, Type } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 
 import { UserEntity } from './user.model';
 

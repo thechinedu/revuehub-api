@@ -97,7 +97,14 @@ export const createUserValidator: Validator<CreateUserDto> = {
 
     errorDetails.forEach((details) => {
       const { context, type } = details;
-      const messageRecord = actions[context?.key]?.[type] || details;
+      let messageRecord: Record<string, string> | ValidationErrorItem;
+
+      if (context?.key) {
+        const key = actions[context.key as keyof typeof actions];
+        messageRecord = key?.[type as keyof typeof key];
+      } else {
+        messageRecord = details;
+      }
 
       Object.assign(acc, messageRecord);
     });

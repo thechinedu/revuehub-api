@@ -4,8 +4,8 @@ import { createOAuthAppAuth } from '@octokit/auth-oauth-app';
 import { request } from '@octokit/request';
 import { randomBytes } from 'crypto';
 
-const OAUTH_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID;
-const OAUTH_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET;
+const OAUTH_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID as string;
+const OAUTH_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET as string;
 
 const auth = createOAuthAppAuth({
   clientId: OAUTH_CLIENT_ID,
@@ -15,6 +15,7 @@ const auth = createOAuthAppAuth({
 const getUserInfo = async (options: CreateOauthUserDto) => {
   try {
     const { token } = await auth({ type: 'oauth-user', ...options });
+    // TODO: Email can be null. Handle case for when email is null
     const {
       data: {
         email,
@@ -29,17 +30,15 @@ const getUserInfo = async (options: CreateOauthUserDto) => {
     });
 
     return {
-      token,
-      data: {
-        email,
-        username,
-        profile_image_url,
-        full_name,
-        // Generate random password for oauth user
-        // OAuth users don't need a password but the db schema expects a password digest
-        // to be set for every user
-        password: randomBytes(16).toString('hex'),
-      },
+      email: email || '',
+      email_verified: Boolean(email),
+      username,
+      profile_image_url,
+      full_name: full_name || '',
+      // Generate random password for oauth user
+      // OAuth users don't need a password but the db schema expects a password digest
+      // to be set for every user
+      password: randomBytes(16).toString('hex'),
     };
   } catch (err) {
     console.log(err); // TODO: Integrate with error monitoring service
