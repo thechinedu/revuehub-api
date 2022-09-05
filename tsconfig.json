@@ -15,7 +15,9 @@
     },
     "incremental": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "strict": true,
+    "strictPropertyInitialization": false
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]

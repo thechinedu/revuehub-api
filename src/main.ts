@@ -14,6 +14,6 @@ async function bootstrap() {
     origin: process.env.CLIENT_ORIGIN,
   });
 
-  await app.listen(process.env.PORT);
+  await app.listen(process.env.PORT as string);
 }
 bootstrap();

@@ -3,6 +3,8 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  HttpException,
+  HttpStatus,
   Post,
   UseInterceptors,
   UsePipes,
@@ -50,11 +52,25 @@ export class UsersController {
 
   // TODO: Add validation for the request body
   @Post('/oauth/new')
-  createOauthUser(@Body() createOauthUserDto: CreateOauthUserDto) {
-    this.userService.createOauthUser(createOauthUserDto);
+  @UseInterceptors(ClassSerializerInterceptor)
+  async createOauthUser(@Body() createOauthUserDto: CreateOauthUserDto) {
+    const userEntity = await this.userService.createOauthUser(
+      createOauthUserDto,
+    );
+
+    if (!userEntity)
+      throw new HttpException(
+        {
+          status: 'fail',
+        },
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+
+    const data = new UserSerializer(userEntity);
 
     return {
       status: 'success',
+      data,
     };
   }
 }

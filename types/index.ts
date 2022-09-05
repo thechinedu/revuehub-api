@@ -15,10 +15,7 @@ export enum OAuthProviders {
 }
 
 type UserInfoOptions = CreateOauthUserDto;
-type GetUserInfoRet = Promise<{
-  data: CreateUserDto;
-  token: string;
-} | null>;
+type GetUserInfoRet = Promise<CreateUserDto | null>;
 
 export type OAuthProviderStrategy = {
   getUserInfo: (userInfoOptions: UserInfoOptions) => GetUserInfoRet;

@@ -1,6 +1,6 @@
 import type { Knex } from 'knex';
 
-type environment = 'development' | 'test' | 'staging' | 'production';
+export type environment = 'development' | 'test' | 'staging' | 'production';
 
 const config: { [key in environment]: Knex.Config } = {
   development: {
