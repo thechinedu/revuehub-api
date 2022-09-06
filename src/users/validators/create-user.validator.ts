@@ -52,6 +52,8 @@ export const schema: Joi.ObjectSchema<CreateUserDto> = object.keys({
   password: string.min(8).required().custom(validatePasswordStrength),
 });
 
+// TODO: move validation messages into their own directory and reuse across application
+
 const emailValidationMessages = {
   'string.email': { email: 'The provided email address is not valid' },
   'string.empty': { email: 'Email address cannot be empty' },
@@ -71,7 +73,7 @@ const passwordValidationMessages = {
   'string.min': { password: 'Password should be a minimum of 8 characters' },
   'string.empty': { password: 'Password cannot be empty' },
   'any.required': { password: 'No password provided' },
-  'string.base': { password: 'No password provided' },
+  'string.base': { password: 'Password must be a string' },
   'any.invalid': {
     password:
       'Password is not secure enough. Password should be a minimum of 8 characters including uppercase and lowercase letters, numbers and symbols',
@@ -87,6 +89,7 @@ const beforeValidate = (createUserDto: CreateUserDto) => ({
 export const createUserValidator: Validator<CreateUserDto> = {
   schema,
   beforeValidate,
+  // TODO: Make this a reusable utility
   serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => {
     const actions = {
       email: emailValidationMessages,

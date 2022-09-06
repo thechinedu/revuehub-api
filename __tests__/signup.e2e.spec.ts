@@ -140,8 +140,8 @@ describe('User signup', () => {
             .post('/v1/users')
             .send({
               ...requestBody,
-              [key]: requestBody[key],
-              [overrideField]: overrideValue,
+              [key]: requestBody[key as keyof typeof requestBody],
+              [overrideField as string]: overrideValue,
             });
 
           const { body, statusCode } = res;

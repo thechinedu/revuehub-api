@@ -58,13 +58,14 @@ export class UsersController {
       createOauthUserDto,
     );
 
-    if (!userEntity)
+    if (!userEntity) {
       throw new HttpException(
         {
           status: 'fail',
         },
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
+    }
 
     const data = new UserSerializer(userEntity);
 
