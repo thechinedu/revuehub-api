@@ -1,6 +1,5 @@
 import { db } from '@/db';
-import { Validator } from '@/utils';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { Validator, verifyPassword } from '@/utils';
 import Joi, { ValidationErrorItem } from 'joi';
 
 import { UserCredentialsDto } from '../dto/user-credentials-dto';
@@ -27,34 +26,31 @@ const passwordValidationMessages = {
   'string.base': { password: 'Password must be a string' },
 };
 
-const beforeValidate = (userCredentialsDto: UserCredentialsDto) => ({
-  ...userCredentialsDto,
-  email: userCredentialsDto.email?.toLowerCase(),
-});
+const beforeValidate = (userCredentialsDto: UserCredentialsDto) =>
+  Promise.resolve({
+    ...userCredentialsDto,
+    email: userCredentialsDto.email?.toLowerCase(),
+  });
 
 const afterValidate = async (userCredentialsDto: UserCredentialsDto) => {
-  try {
-    const user = await db('users').where({ email: userCredentialsDto.email });
+  const user = (
+    await db('users')
+      .select('email', 'password_digest')
+      .where({ email: userCredentialsDto.email })
+  )[0];
 
-    if (!user) {
-      throw new HttpException(
-        {
-          status: 'error',
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    return userCredentialsDto;
-  } catch (err) {
-    console.log(err); // TODO: set up error monitoring
-    throw new HttpException(
-      {
-        status: 'error',
-      },
-      HttpStatus.INTERNAL_SERVER_ERROR,
+  if (
+    !user ||
+    !(await verifyPassword(user.password_digest, userCredentialsDto.password))
+  ) {
+    throw new Joi.ValidationError(
+      'Invalid credentials',
+      [{ message: `Email or Password is invalid` }],
+      () => null,
     );
   }
+
+  return userCredentialsDto;
 };
 
 export const loginValidator: Validator<UserCredentialsDto> = {
