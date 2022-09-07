@@ -31,10 +31,12 @@ export class UserModel {
   }
 
   async createOauthState({ provider }: CreateOauthStateDto) {
+    // TODO: Generate state and store it in memory store with oauth provider deets
+
     // const state = randomUUID()
     // await memoryStore.set(state, provider)
     // (await memoryStore).set('key', 'value');
 
-    return 'fancy-state';
+    return randomUUID();
   }
 }

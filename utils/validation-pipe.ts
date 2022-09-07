@@ -8,8 +8,8 @@ import { ObjectSchema, ValidationError, ValidationErrorItem } from 'joi';
 
 export type Validator<T = any> = {
   schema: ObjectSchema<T>;
-  beforeValidate?: (value: T) => T;
-  afterValidate?: (value: T) => T;
+  beforeValidate?: (value: T) => Promise<T>;
+  afterValidate?: (value: T) => Promise<T>;
   serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => any;
 };
 
@@ -22,12 +22,12 @@ export class ValidationPipe implements PipeTransform {
 
     try {
       const transformedValueBeforeValidation =
-        validator?.beforeValidate?.(value) || value;
+        (await validator?.beforeValidate?.(value)) || value;
       await validator.schema.validateAsync(transformedValueBeforeValidation, {
         abortEarly: false,
       });
       const transformedValue =
-        validator?.afterValidate?.(transformedValueBeforeValidation) ||
+        (await validator?.afterValidate?.(transformedValueBeforeValidation)) ||
         transformedValueBeforeValidation;
 
       return transformedValue;

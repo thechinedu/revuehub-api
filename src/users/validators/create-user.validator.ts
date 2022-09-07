@@ -80,11 +80,12 @@ const passwordValidationMessages = {
   },
 };
 
-const beforeValidate = (createUserDto: CreateUserDto) => ({
-  ...createUserDto,
-  email: createUserDto.email?.toLowerCase(),
-  username: createUserDto.username?.toLowerCase(),
-});
+const beforeValidate = (createUserDto: CreateUserDto) =>
+  Promise.resolve({
+    ...createUserDto,
+    email: createUserDto.email?.toLowerCase(),
+    username: createUserDto.username?.toLowerCase(),
+  });
 
 export const createUserValidator: Validator<CreateUserDto> = {
   schema,
