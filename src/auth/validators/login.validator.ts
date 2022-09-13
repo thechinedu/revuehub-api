@@ -50,6 +50,9 @@ const afterValidate = async (userCredentialsDto: UserCredentialsDto) => {
     );
   }
 
+  // TODO: decorate dto with user id to help ensure authService
+  // doesn't query the db again for the user.
+  // Update dto type and add relevant user entity fields as optional
   return userCredentialsDto;
 };
 

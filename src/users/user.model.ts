@@ -1,4 +1,5 @@
 import { db, memoryStore } from '@/db';
+import { PartialRecord } from '@/types';
 import { hashPassword } from '@/utils';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
@@ -17,6 +18,13 @@ export type UserEntity = {
   email_verified: boolean;
   provider: string;
   profile_image_url: string;
+};
+
+type UserEntityKeys = keyof UserEntity;
+
+type FindUserArgs = {
+  where: PartialRecord<UserEntityKeys, string>;
+  select: UserEntityKeys[];
 };
 
 @Injectable()
@@ -38,5 +46,9 @@ export class UserModel {
     // (await memoryStore).set('key', 'value');
 
     return randomUUID();
+  }
+
+  async find({ where, select }: FindUserArgs): Promise<UserEntity> {
+    return (await db('users').select(select).where(where))[0];
   }
 }
