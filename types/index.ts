@@ -20,3 +20,8 @@ type GetUserInfoRet = Promise<CreateUserDto | null>;
 export type OAuthProviderStrategy = {
   getUserInfo: (userInfoOptions: UserInfoOptions) => GetUserInfoRet;
 };
+
+export type PartialRecord<
+  T extends string | number | symbol,
+  K = any,
+> = Partial<Record<T, K>>;
