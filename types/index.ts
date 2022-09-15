@@ -25,3 +25,8 @@ export type PartialRecord<
   T extends string | number | symbol,
   K = any,
 > = Partial<Record<T, K>>;
+
+export enum AuthTokenType {
+  OAUTH_TOKEN = 'OAUTH_TOKEN',
+  REFRESH_TOKEN = 'REFRESH_TOKEN',
+}

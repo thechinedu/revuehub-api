@@ -2,7 +2,8 @@ import { CreateOauthUserDto } from '@/src/users/dto/create-oauth-user-dto';
 import { OAuthProviderStrategy } from '@/types';
 import { createOAuthAppAuth } from '@octokit/auth-oauth-app';
 import { request } from '@octokit/request';
-import { randomBytes } from 'crypto';
+
+import { generateRandomToken } from '../';
 
 const OAUTH_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID as string;
 const OAUTH_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET as string;
@@ -38,7 +39,7 @@ const getUserInfo = async (options: CreateOauthUserDto) => {
       // Generate random password for oauth user
       // OAuth users don't need a password but the db schema expects a password digest
       // to be set for every user
-      password: randomBytes(16).toString('hex'),
+      password: generateRandomToken(32),
     };
   } catch (err) {
     console.log(err); // TODO: Integrate with error monitoring service
