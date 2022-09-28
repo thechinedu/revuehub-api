@@ -1,9 +1,8 @@
-import { db, memoryStore } from '@/db';
+import { db } from '@/db';
 import { PartialRecord } from '@/types';
-import { hashPassword, generateRandomToken } from '@/utils';
+import { hashPassword } from '@/utils';
 import { Injectable } from '@nestjs/common';
 
-import { CreateOauthStateDto } from './dto/create-oauth-state-dto';
 import { CreateUserDto } from './dto/create-user-dto';
 
 export type UserEntity = {
@@ -34,16 +33,6 @@ export class UserModel {
         .insert({ ...dto, password_digest: await hashPassword(password) })
         .returning('*')
     )[0];
-  }
-
-  async createOauthState({ provider }: CreateOauthStateDto) {
-    // TODO: Generate state and store it in memory store with oauth provider deets
-
-    // const state = randomUUID()
-    // await memoryStore.set(state, provider)
-    // (await memoryStore).set('key', 'value');
-
-    return generateRandomToken(32);
   }
 
   async find({ where, select }: FindUserArgs): Promise<UserEntity> {

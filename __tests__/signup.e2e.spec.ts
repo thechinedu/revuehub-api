@@ -99,9 +99,16 @@ describe('User signup', () => {
     ({ key, properties }) => {
       test(`when ${key} is not provided`, async () => {
         const { message } = properties[0];
+        const requestKey = key as keyof typeof requestBody;
+        const tempPropValue = requestBody[requestKey];
+
+        delete requestBody[requestKey];
+
         const res = await request(app.getHttpServer())
           .post('/v1/users')
-          .send({ ...requestBody, [key]: null });
+          .send({ ...requestBody });
+
+        requestBody[requestKey] = tempPropValue;
 
         const { body, statusCode } = res;
 

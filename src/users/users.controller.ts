@@ -1,3 +1,5 @@
+import { AuthService } from '@/src/auth/Auth.service';
+import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { ValidationPipe } from '@/utils';
 import {
   Body,
@@ -10,8 +12,6 @@ import {
   UsePipes,
 } from '@nestjs/common';
 
-import { CreateOauthStateDto } from './dto/create-oauth-state-dto';
-import { CreateOauthUserDto } from './dto/create-oauth-user-dto';
 import { CreateUserDto } from './dto/create-user-dto';
 import { UserSerializer } from './user.serializer';
 import { UserService } from './user.service';
@@ -22,7 +22,10 @@ import { createUserValidator } from './validators/create-user.validator';
   version: '1',
 })
 export class UsersController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+  ) {}
 
   @Post()
   @UsePipes(new ValidationPipe(createUserValidator))
@@ -38,27 +41,16 @@ export class UsersController {
   }
 
   // TODO: Add validation for the request body
-  @Post('/oauth/state')
-  async createOauthState(@Body() createOauthStateDto: CreateOauthStateDto) {
-    const state = await this.userService.createOauthState(createOauthStateDto);
-
-    return {
-      status: 'success',
-      data: {
-        state,
-      },
-    };
-  }
-
-  // TODO: Add validation for the request body
   @Post('/oauth/new')
   @UseInterceptors(ClassSerializerInterceptor)
-  async createOauthUser(@Body() createOauthUserDto: CreateOauthUserDto) {
-    const userEntity = await this.userService.createOauthUser(
-      createOauthUserDto,
+  async createUserFromOAuthInfo(
+    @Body() createUserFromOAuthDto: CreateUserFromOAuthDto,
+  ) {
+    const oauthUserInfo = await this.authService.fetchOAuthUserInfo(
+      createUserFromOAuthDto,
     );
 
-    if (!userEntity) {
+    if (!oauthUserInfo) {
       throw new HttpException(
         {
           status: 'fail',
@@ -66,7 +58,7 @@ export class UsersController {
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
-
+    const userEntity = await this.userService.createUser(oauthUserInfo);
     const data = new UserSerializer(userEntity);
 
     return {
