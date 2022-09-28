@@ -11,6 +11,7 @@ import {
 import { Response } from 'express';
 
 import { AuthService } from './Auth.service';
+import { CreateOAuthStateDto } from './dto/create-oauth-state-dto';
 import { UserCredentialsDto } from './dto/user-credentials-dto';
 import { loginValidator } from './validators/login.validator';
 
@@ -45,5 +46,18 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     });
+  }
+
+  // TODO: Add validation for the request body
+  @Post('/oauth/state')
+  async createOauthState(@Body() createOAuthStateDto: CreateOAuthStateDto) {
+    const state = await this.authService.createOAuthState(createOAuthStateDto);
+
+    return {
+      status: 'success',
+      data: {
+        state,
+      },
+    };
   }
 }

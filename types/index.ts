@@ -1,4 +1,4 @@
-import { CreateOauthUserDto } from '@/src/users/dto/create-oauth-user-dto';
+import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { CreateUserDto } from '@/src/users/dto/create-user-dto';
 
 // TODO: error responses (5xx errors) are currently handled by nestjs. The structure
@@ -14,7 +14,7 @@ export enum OAuthProviders {
   GITHUB = 'github',
 }
 
-type UserInfoOptions = CreateOauthUserDto;
+type UserInfoOptions = CreateUserFromOAuthDto;
 type GetUserInfoRet = Promise<CreateUserDto | null>;
 
 export type OAuthProviderStrategy = {

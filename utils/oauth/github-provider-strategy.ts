@@ -1,4 +1,4 @@
-import { CreateOauthUserDto } from '@/src/users/dto/create-oauth-user-dto';
+import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { OAuthProviderStrategy } from '@/types';
 import { createOAuthAppAuth } from '@octokit/auth-oauth-app';
 import { request } from '@octokit/request';
@@ -13,7 +13,7 @@ const auth = createOAuthAppAuth({
   clientSecret: OAUTH_CLIENT_SECRET,
 });
 
-const getUserInfo = async (options: CreateOauthUserDto) => {
+const getUserInfo = async (options: CreateUserFromOAuthDto) => {
   try {
     const { token } = await auth({ type: 'oauth-user', ...options });
     // TODO: Email can be null. Handle case for when email is null
