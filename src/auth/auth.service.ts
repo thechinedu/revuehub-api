@@ -2,7 +2,7 @@ import { memoryStore } from '@/db';
 import { UserModel } from '@/src/users/user.model';
 import { UserAuthTokenModel } from '@/src/user-auth-tokens/user-auth-token.model';
 import { AuthTokenType, OAuthProviders } from '@/types';
-import { generateRandomToken, getOAuthProvider } from '@/utils';
+import { generateOAuthState, getOAuthProvider } from '@/utils';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
@@ -42,19 +42,26 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  createOAuthState(createOAuthStateDto: CreateOAuthStateDto) {
-    // TODO: Generate state and store it in memory store with oauth provider deets
+  async createOAuthState({ provider }: CreateOAuthStateDto) {
+    const state = await generateOAuthState();
+    const memoryStoreClient = await memoryStore;
 
-    // const state = randomUUID()
-    // await memoryStore.set(state, provider)
-    // (await memoryStore).set('key', 'value');
+    memoryStoreClient.set(state, provider);
+    memoryStoreClient.expire(state, 15 * 60); // expires in 15 minutes
 
-    return generateRandomToken(32);
+    return state;
   }
 
   async fetchOAuthUserInfo(oauthUserInfo: CreateUserFromOAuthDto) {
-    const oauthProvider = getOAuthProvider(OAuthProviders.GITHUB); // TODO: use oauth provider passed in from client
-    const userInfo = await oauthProvider.getUserInfo(oauthUserInfo);
+    const { state } = oauthUserInfo;
+    const memoryStoreClient = await memoryStore;
+
+    const provider = await memoryStoreClient.get(state);
+
+    if (!provider) return null;
+
+    const oauthProviderStrategy = getOAuthProvider(provider as OAuthProviders);
+    const userInfo = await oauthProviderStrategy.getUserInfo(oauthUserInfo);
 
     if (!userInfo) return null;
 
