@@ -14,6 +14,7 @@ import { AuthService } from './Auth.service';
 import { CreateOAuthStateDto } from './dto/create-oauth-state-dto';
 import { UserCredentialsDto } from './dto/user-credentials-dto';
 import { loginValidator } from './validators/login.validator';
+import { oauthStateValidator } from './validators/oauth-state.validator';
 
 @Controller({
   path: 'auth',
@@ -48,8 +49,8 @@ export class AuthController {
     });
   }
 
-  // TODO: Add validation for the request body
   @Post('/oauth/state')
+  @UsePipes(new ValidationPipe(oauthStateValidator))
   async createOauthState(@Body() createOAuthStateDto: CreateOAuthStateDto) {
     const state = await this.authService.createOAuthState(createOAuthStateDto);
 
