@@ -16,6 +16,7 @@ import { CreateUserDto } from './dto/create-user-dto';
 import { UserSerializer } from './user.serializer';
 import { UserService } from './user.service';
 import { createUserValidator } from './validators/create-user.validator';
+import { createOAuthUserValidator } from './validators/create-oauth-user.validator';
 
 @Controller({
   path: 'users',
@@ -40,8 +41,8 @@ export class UsersController {
     };
   }
 
-  // TODO: Add validation for the request body
   @Post('/oauth/new')
+  @UsePipes(new ValidationPipe(createOAuthUserValidator))
   @UseInterceptors(ClassSerializerInterceptor)
   async createUserFromOAuthInfo(
     @Body() createUserFromOAuthDto: CreateUserFromOAuthDto,
