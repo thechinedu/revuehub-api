@@ -1,7 +1,8 @@
 import { OAuthProviders } from '@/types';
+import { Validator } from '@/utils';
 import Joi, { CustomValidator, ValidationErrorItem } from 'joi';
 
-import { UserCredentialsDto } from '../dto/user-credentials-dto';
+import { CreateOAuthStateDto } from '../dto/create-oauth-state-dto';
 
 const { object, string } = Joi.types();
 
@@ -15,7 +16,7 @@ const validateProviderValue: CustomValidator<string> = (value, helpers) => {
   return value;
 };
 
-export const schema: Joi.ObjectSchema<UserCredentialsDto> = object.keys({
+export const schema: Joi.ObjectSchema<CreateOAuthStateDto> = object.keys({
   provider: string.required().custom(validateProviderValue),
 });
 
@@ -28,7 +29,7 @@ const providerValidationMessages = {
   },
 };
 
-export const oauthStateValidator = {
+export const oauthStateValidator: Validator<CreateOAuthStateDto> = {
   schema,
   // TODO: Make this a reusable utility
   serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => {
