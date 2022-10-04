@@ -31,15 +31,18 @@ const getUserInfo = async (options: CreateUserFromOAuthDto) => {
     });
 
     return {
-      email: email || '',
-      email_verified: Boolean(email),
-      username,
-      profile_image_url,
-      full_name: full_name || '',
-      // Generate random password for oauth user
-      // OAuth users don't need a password but the db schema expects a password digest
-      // to be set for every user
-      password: generateRandomToken(32),
+      data: {
+        email: email || '',
+        email_verified: Boolean(email),
+        username,
+        profile_image_url,
+        full_name: full_name || '',
+        // Generate random password for oauth user
+        // OAuth users don't need a password but the db schema expects a password digest
+        // to be set for every user
+        password: generateRandomToken(32),
+      },
+      token,
     };
   } catch (err) {
     console.log(err); // TODO: Integrate with error monitoring service

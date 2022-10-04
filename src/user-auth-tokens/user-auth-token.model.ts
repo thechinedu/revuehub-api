@@ -3,9 +3,6 @@ import { AuthTokenType } from '@/types';
 import { generateRandomToken } from '@/utils';
 import { Injectable } from '@nestjs/common';
 
-// import { CreateOauthStateDto } from './dto/create-oauth-state-dto';
-// import { CreateUserDto } from './dto/create-user-dto';
-
 type UserAuthTokenEntity = {
   id: number;
   user_id: number;
@@ -17,8 +14,9 @@ type UserAuthTokenEntity = {
 };
 
 type CreateAuthTokenArgs = {
-  userID: UserAuthTokenEntity['user_id'];
-  type: UserAuthTokenEntity['type'];
+  userID: number;
+  type: AuthTokenType;
+  token?: string;
 };
 
 const authTokenExpiryOptions = {
@@ -31,8 +29,13 @@ export class UserAuthTokenModel {
   async createAuthToken({
     userID: user_id,
     type,
+    token: readOnlyToken,
   }: CreateAuthTokenArgs): Promise<UserAuthTokenEntity> {
-    const token = await this.generateAuthToken();
+    if (type === AuthTokenType.OAUTH_TOKEN && !readOnlyToken) {
+      throw new Error('OAuth token not present');
+    }
+
+    const token = readOnlyToken || (await this.generateAuthToken());
 
     return (
       await db('user_auth_tokens')
