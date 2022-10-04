@@ -1,5 +1,6 @@
 import { AuthService } from '@/src/auth/auth.service';
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
+import { UserAuthTokenService } from '@/src/user-auth-tokens/user-auth-token.service';
 import { ValidationPipe } from '@/utils';
 import {
   Body,
@@ -17,6 +18,7 @@ import { UserSerializer } from './user.serializer';
 import { UserService } from './user.service';
 import { createUserValidator } from './validators/create-user.validator';
 import { createOAuthUserValidator } from './validators/create-oauth-user.validator';
+import { AuthTokenType } from '@/types';
 
 @Controller({
   path: 'users',
@@ -26,8 +28,9 @@ export class UsersController {
   constructor(
     private userService: UserService,
     private authService: AuthService,
+    private userAuthTokenService: UserAuthTokenService,
   ) {}
-
+  // TODO: return 204. Client has no use for json response
   @Post()
   @UsePipes(new ValidationPipe(createUserValidator))
   @UseInterceptors(ClassSerializerInterceptor)
@@ -41,6 +44,7 @@ export class UsersController {
     };
   }
 
+  // TODO: return 204. Client has no use for json response
   @Post('/oauth/new')
   @UsePipes(new ValidationPipe(createOAuthUserValidator))
   @UseInterceptors(ClassSerializerInterceptor)
@@ -62,6 +66,12 @@ export class UsersController {
 
     const { data: userInfo, token } = oauthUserInfo;
     const userEntity = await this.userService.findOrCreateUser(userInfo);
+    await this.userAuthTokenService.removeExistingOAuthTokens();
+    await this.userAuthTokenService.createAuthToken({
+      userID: userEntity.id,
+      type: AuthTokenType.OAUTH_TOKEN,
+      token,
+    });
     const data = new UserSerializer(userEntity);
 
     return {

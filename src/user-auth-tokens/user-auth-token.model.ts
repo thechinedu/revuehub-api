@@ -1,7 +1,9 @@
 import { db } from '@/db';
-import { AuthTokenType } from '@/types';
+import { AuthTokenType, PartialRecord } from '@/types';
 import { generateRandomToken } from '@/utils';
 import { Injectable } from '@nestjs/common';
+
+import { CreateAuthTokenDto } from './dto/create-auth-token-dto';
 
 type UserAuthTokenEntity = {
   id: number;
@@ -13,10 +15,10 @@ type UserAuthTokenEntity = {
   updated_at: Date;
 };
 
-type CreateAuthTokenArgs = {
-  userID: number;
-  type: AuthTokenType;
-  token?: string;
+type UserAuthTokenEntityKeys = keyof UserAuthTokenEntity;
+
+type RemoveAllArgs = {
+  where: PartialRecord<UserAuthTokenEntityKeys, string>;
 };
 
 const authTokenExpiryOptions = {
@@ -26,11 +28,11 @@ const authTokenExpiryOptions = {
 
 @Injectable()
 export class UserAuthTokenModel {
-  async createAuthToken({
+  async create({
     userID: user_id,
     type,
     token: readOnlyToken,
-  }: CreateAuthTokenArgs): Promise<UserAuthTokenEntity> {
+  }: CreateAuthTokenDto): Promise<UserAuthTokenEntity> {
     if (type === AuthTokenType.OAUTH_TOKEN && !readOnlyToken) {
       throw new Error('OAuth token not present');
     }
@@ -47,6 +49,10 @@ export class UserAuthTokenModel {
         })
         .returning('*')
     )[0];
+  }
+
+  async removeAll({ where }: RemoveAllArgs) {
+    await db('user_auth_tokens').where(where).del();
   }
 
   private async generateAuthToken(): Promise<string> {

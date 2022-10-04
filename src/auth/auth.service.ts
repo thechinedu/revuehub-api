@@ -1,6 +1,6 @@
 import { memoryStore } from '@/db';
+import { UserAuthTokenModel } from '@/src/user-auth-tokens/user-auth-token.model';
 import { UserModel } from '@/src/users/user.model';
-import { UserAuthTokenService } from '@/src/user-auth-tokens/user-auth-token.service';
 import { AuthTokenType, OAuthProviders } from '@/types';
 import { generateOAuthState, getOAuthProvider } from '@/utils';
 import { Injectable } from '@nestjs/common';
@@ -15,7 +15,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private userModel: UserModel,
-    private userAuthTokenService: UserAuthTokenService,
+    private userAuthTokenModel: UserAuthTokenModel,
   ) {}
 
   async loginUser(userCredentialsDto: UserCredentialsDto) {
@@ -33,11 +33,10 @@ export class AuthService {
         expiresIn: '15m',
       },
     );
-    const { token: refreshToken } =
-      await this.userAuthTokenService.createAuthToken({
-        userID: user.id,
-        type: AuthTokenType.REFRESH_TOKEN,
-      });
+    const { token: refreshToken } = await this.userAuthTokenModel.create({
+      userID: user.id,
+      type: AuthTokenType.REFRESH_TOKEN,
+    });
 
     return { accessToken, refreshToken };
   }
