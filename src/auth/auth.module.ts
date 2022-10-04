@@ -1,4 +1,4 @@
-import { UserAuthTokenModule } from '@/src/user-auth-tokens/user-auth-token.module';
+import { UserAuthTokenModel } from '@/src/user-auth-tokens/user-auth-token.model';
 import { UserModel } from '@/src/users/user.model';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
@@ -7,12 +7,9 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 @Module({
-  imports: [
-    JwtModule.register({ secret: process.env.APP_SECRET as string }),
-    UserAuthTokenModule,
-  ],
+  imports: [JwtModule.register({ secret: process.env.APP_SECRET as string })],
   controllers: [AuthController],
-  providers: [AuthService, UserModel],
+  providers: [AuthService, UserModel, UserAuthTokenModel],
   exports: [AuthService],
 })
 export class AuthModule {}

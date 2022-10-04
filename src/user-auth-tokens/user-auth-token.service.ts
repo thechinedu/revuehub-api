@@ -1,3 +1,4 @@
+import { AuthTokenType } from '@/types';
 import { Injectable } from '@nestjs/common';
 
 import { CreateAuthTokenDto } from './dto/create-auth-token-dto';
@@ -8,6 +9,14 @@ export class UserAuthTokenService {
   constructor(private userAuthTokenModel: UserAuthTokenModel) {}
 
   createAuthToken(createAuthTokenDto: CreateAuthTokenDto) {
-    return this.userAuthTokenModel.createAuthToken(createAuthTokenDto);
+    return this.userAuthTokenModel.create(createAuthTokenDto);
+  }
+
+  removeExistingOAuthTokens() {
+    this.userAuthTokenModel.removeAll({
+      where: {
+        type: AuthTokenType.OAUTH_TOKEN,
+      },
+    });
   }
 }
