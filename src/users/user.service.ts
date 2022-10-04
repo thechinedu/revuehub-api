@@ -10,4 +10,8 @@ export class UserService {
   createUser(createUserDto: CreateUserDto) {
     return this.userModel.create(createUserDto);
   }
+
+  findOrCreateUser(createUserDto: CreateUserDto) {
+    return this.userModel.findOrCreate(createUserDto);
+  }
 }

@@ -38,4 +38,17 @@ export class UserModel {
   async find({ where, select }: FindUserArgs): Promise<UserEntity> {
     return (await db('users').select(select).where(where))[0];
   }
+
+  async findOrCreate({ email, ...rest }: CreateUserDto): Promise<UserEntity> {
+    const user = this.find({
+      where: {
+        email,
+      },
+      select: ['id'],
+    });
+
+    if (user) return user;
+
+    return this.create({ email, ...rest });
+  }
 }

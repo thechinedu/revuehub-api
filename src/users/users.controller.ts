@@ -1,4 +1,4 @@
-import { AuthService } from '@/src/auth/Auth.service';
+import { AuthService } from '@/src/auth/auth.service';
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { ValidationPipe } from '@/utils';
 import {
@@ -59,7 +59,9 @@ export class UsersController {
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
-    const userEntity = await this.userService.createUser(oauthUserInfo);
+
+    const { data: userInfo, token } = oauthUserInfo;
+    const userEntity = await this.userService.findOrCreateUser(userInfo);
     const data = new UserSerializer(userEntity);
 
     return {
