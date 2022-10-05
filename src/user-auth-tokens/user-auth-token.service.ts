@@ -1,8 +1,7 @@
-import { AuthTokenType } from '@/types';
 import { Injectable } from '@nestjs/common';
 
 import { CreateAuthTokenDto } from './dto/create-auth-token-dto';
-import { UserAuthTokenModel } from './user-auth-token.model';
+import { RemoveAllArgs, UserAuthTokenModel } from './user-auth-token.model';
 
 @Injectable()
 export class UserAuthTokenService {
@@ -12,11 +11,9 @@ export class UserAuthTokenService {
     return this.userAuthTokenModel.create(createAuthTokenDto);
   }
 
-  removeExistingOAuthTokens() {
+  removeAll({ where }: RemoveAllArgs) {
     this.userAuthTokenModel.removeAll({
-      where: {
-        type: AuthTokenType.OAUTH_TOKEN,
-      },
+      where,
     });
   }
 }

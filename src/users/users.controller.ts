@@ -1,6 +1,7 @@
 import { AuthService } from '@/src/auth/auth.service';
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { UserAuthTokenService } from '@/src/user-auth-tokens/user-auth-token.service';
+import { AuthTokenType } from '@/types';
 import { ValidationPipe } from '@/utils';
 import {
   Body,
@@ -18,7 +19,6 @@ import { UserSerializer } from './user.serializer';
 import { UserService } from './user.service';
 import { createUserValidator } from './validators/create-user.validator';
 import { createOAuthUserValidator } from './validators/create-oauth-user.validator';
-import { AuthTokenType } from '@/types';
 
 @Controller({
   path: 'users',
@@ -66,7 +66,9 @@ export class UsersController {
 
     const { data: userInfo, token } = oauthUserInfo;
     const userEntity = await this.userService.findOrCreateUser(userInfo);
-    await this.userAuthTokenService.removeExistingOAuthTokens();
+    await this.userAuthTokenService.removeAll({
+      where: { type: AuthTokenType.OAUTH_TOKEN },
+    });
     await this.userAuthTokenService.createAuthToken({
       userID: userEntity.id,
       type: AuthTokenType.OAUTH_TOKEN,

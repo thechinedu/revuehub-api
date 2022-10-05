@@ -17,7 +17,7 @@ type UserAuthTokenEntity = {
 
 type UserAuthTokenEntityKeys = keyof UserAuthTokenEntity;
 
-type RemoveAllArgs = {
+export type RemoveAllArgs = {
   where: PartialRecord<UserAuthTokenEntityKeys, string>;
 };
 
