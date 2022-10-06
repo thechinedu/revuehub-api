@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-export async function up(knex: Knex): Promise<void> {
+export async function up(knex: Knex): Promise<Knex.SchemaBuilder> {
   return knex.schema.createTable('repositories', (table) => {
     table.increments();
     table.integer('snapshot_id').unsigned().unique();
@@ -17,6 +17,6 @@ export async function up(knex: Knex): Promise<void> {
   });
 }
 
-export async function down(knex: Knex): Promise<void> {
+export async function down(knex: Knex): Promise<Knex.SchemaBuilder> {
   return knex.schema.dropTable('repositories');
 }
