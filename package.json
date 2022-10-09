@@ -37,7 +37,7 @@
     "class-transformer": "^0.5.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.3",
-    "joi": "^17.6.1",
+    "joi": "^17.6.2",
     "knex": "^2.3.0",
     "pg": "^8.8.0",
     "redis": "^4.3.1",
