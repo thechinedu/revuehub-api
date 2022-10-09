@@ -4,7 +4,7 @@ export async function up(knex: Knex): Promise<Knex.SchemaBuilder> {
   return knex.schema.createTable('repositories', (table) => {
     table.increments();
     table.integer('snapshot_id').unsigned().unique();
-    table.integer('node_id').unsigned().unique();
+    table.string('node_id').unique();
     table.integer('user_id').unsigned();
     table.string('name').unique();
     table.text('description');
