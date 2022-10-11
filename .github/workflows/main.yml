@@ -18,6 +18,28 @@ jobs:
       matrix:
         node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    
+    services:
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
     - uses: actions/checkout@v3
@@ -26,8 +48,14 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: |
-        yarn install
-        yarn build
-        yarn lint
-        yarn test
+    - name: Install dependencies
+      run: yarn install
+    - name: Lint application
+      run: yarn lint
+    - name: Build application
+      run: yarn build
+    - name: Run tests
+      env:
+        APP_ENV: ${{ secrets.APP_ENV }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      run: yarn test
