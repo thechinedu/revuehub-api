@@ -43,9 +43,10 @@ const afterValidate = async (userCredentialsDto: UserCredentialsDto) => {
     !user ||
     !(await verifyPassword(user.password_digest, userCredentialsDto.password))
   ) {
+    // TODO: Replace with custom error
     throw new Joi.ValidationError(
       'Invalid credentials',
-      [{ message: `Email or Password is invalid` }],
+      [{ message: `Email or Password is invalid`, path: [], type: '' }],
       () => null,
     );
   }
