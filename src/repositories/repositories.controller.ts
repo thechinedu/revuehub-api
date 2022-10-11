@@ -16,6 +16,7 @@ export class RepositoriesController {
     };
   }
 
+  // TODO: add runtime validation for status value
   private fetchReposByStatus(status?: 'active' | 'inactive') {
     const statusActions = {
       active: () => this.repositoryService.fetchActiveRepos(),

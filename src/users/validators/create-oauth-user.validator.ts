@@ -12,9 +12,10 @@ const validateStateValue: ExternalValidationFunction = async (
   const isStateValid = Boolean(await memoryStoreClient.exists(value));
 
   if (!isStateValid) {
+    // TODO: Replace with custom error
     throw new Joi.ValidationError(
       'Invalid state',
-      [{ state: `State is not valid` }],
+      [{ message: `State is not valid`, path: [], type: '' }],
       () => null,
     );
   }

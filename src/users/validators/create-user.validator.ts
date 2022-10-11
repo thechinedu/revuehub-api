@@ -17,9 +17,17 @@ const validateUniqueness: (
   const res = await db('users').where(field, value);
 
   if (res.length) {
+    // TODO: Replace with custom error
     throw new Joi.ValidationError(
       'Not unique',
-      [{ [field]: `${value} is not available` }],
+      [
+        {
+          [field]: `${value} is not available`,
+          message: '',
+          path: [],
+          type: '',
+        },
+      ],
       () => null,
     );
   }
