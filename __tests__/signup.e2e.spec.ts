@@ -1,5 +1,5 @@
 import { AppModule } from '@/src/app.module';
-import { db } from '@/db';
+import { db, memoryStore } from '@/db';
 import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
@@ -32,9 +32,12 @@ describe('User signup', () => {
     await db.migrate.rollback();
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    const memoryStoreClient = await memoryStore;
+
     app.close();
     db.destroy();
+    memoryStoreClient.disconnect();
   });
 
   test('A new user is created when the request body is valid', async () => {
