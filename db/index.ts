@@ -7,7 +7,9 @@ import { createClient } from 'redis';
 export const db = knex(DBConfig[process.env.APP_ENV as environment]);
 
 export const memoryStore = (async () => {
-  const client = createClient();
+  const client = createClient({
+    url: process.env.REDIS_URL,
+  });
   client.on('error', (err) => {
     console.log('Failed to set up in-memory store', err); // TODO: set up proper logger
   });
