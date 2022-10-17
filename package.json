@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@nestjs/common": "^9.1.4",
-    "@nestjs/core": "^9.1.2",
+    "@nestjs/core": "^9.1.4",
     "@nestjs/jwt": "^9.0.0",
     "@nestjs/platform-express": "^9.1.2",
     "@octokit/auth-oauth-app": "^5.0.3",
