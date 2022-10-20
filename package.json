@@ -13,6 +13,7 @@
     "start:dev": "yarn nest start --watch",
     "start:debug": "yarn nest start --debug --watch",
     "start:prod": "node dist/main",
+    "start:test-server": "DOTENV_CONFIG_PATH=.env.test yarn start",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "jest": "DOTENV_CONFIG_PATH=.env.test node -r dotenv/config ./node_modules/.bin/jest",
     "test": "yarn jest --forceExit",
@@ -24,7 +25,9 @@
     "migrate:latest": "yarn knex migrate:latest",
     "migrate:up": "yarn knex migrate:up",
     "migrate:down": "yarn knex migrate:down",
-    "migrate:rollback": "yarn knex migrate:rollback"
+    "migrate:rollback": "yarn knex migrate:rollback",
+    "migrate:latest:test": "DOTENV_CONFIG_PATH=.env.test yarn knex migrate:latest",
+    "migrate:rollback:test": "DOTENV_CONFIG_PATH=.env.test yarn knex migrate:rollback"
   },
   "dependencies": {
     "@nestjs/common": "^9.1.4",
