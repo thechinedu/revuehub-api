@@ -35,7 +35,7 @@
     "@nestjs/jwt": "^9.0.0",
     "@nestjs/platform-express": "^9.1.4",
     "@octokit/auth-oauth-app": "^5.0.3",
-    "@octokit/request": "^6.2.1",
+    "@octokit/request": "^6.2.2",
     "argon2": "^0.29.1",
     "class-transformer": "^0.5.1",
     "cookie-parser": "^1.4.6",
