@@ -771,15 +771,15 @@
     consola "^2.15.0"
     node-fetch "^2.6.1"
 
-"@octokit/auth-oauth-app@^5.0.3":
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/@octokit/auth-oauth-app/-/auth-oauth-app-5.0.3.tgz#c4467d2f7265aade3989d51df0cc26b0b2c13c36"
-  integrity sha512-qnETfWn58nNQG8An8PbYDaGfNfPfLSSwjfRk5lCBuB2r/Lt+uLYhf6vyIL/NMRxCykDQBguGJISSXT6UpfV3cA==
+"@octokit/auth-oauth-app@^5.0.4":
+  version "5.0.4"
+  resolved "https://registry.yarnpkg.com/@octokit/auth-oauth-app/-/auth-oauth-app-5.0.4.tgz#ebd9a38f75381093d1a5e08e05b70b94f0918277"
+  integrity sha512-zlWuii5hAN50vsV6SJC+uIJ7SMhyWjQMEmKJQxkmNDlieE9LjnkZnbOjqRsfcG7VO7WTl4K8ccpo/3A7Kdpmrw==
   dependencies:
     "@octokit/auth-oauth-device" "^4.0.0"
     "@octokit/auth-oauth-user" "^2.0.0"
     "@octokit/request" "^6.0.0"
-    "@octokit/types" "^7.0.0"
+    "@octokit/types" "^8.0.0"
     "@types/btoa-lite" "^1.0.0"
     btoa-lite "^1.0.0"
     universal-user-agent "^6.0.0"
