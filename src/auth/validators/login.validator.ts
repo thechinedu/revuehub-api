@@ -35,7 +35,7 @@ const beforeValidate = (userCredentialsDto: UserCredentialsDto) =>
 const afterValidate = async (userCredentialsDto: UserCredentialsDto) => {
   const user = (
     await db('users')
-      .select('email', 'password_digest')
+      .select('id', 'password_digest')
       .where({ email: userCredentialsDto.email })
   )[0];
 
@@ -54,7 +54,7 @@ const afterValidate = async (userCredentialsDto: UserCredentialsDto) => {
   // TODO: decorate dto with user id to help ensure authService
   // doesn't query the db again for the user.
   // Update dto type and add relevant user entity fields as optional
-  return userCredentialsDto;
+  return { ...userCredentialsDto, id: user.id };
 };
 
 export const loginValidator: Validator<UserCredentialsDto> = {

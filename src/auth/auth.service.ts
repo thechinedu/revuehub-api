@@ -1,44 +1,49 @@
 import { memoryStore } from '@/db';
 import { UserAuthTokenModel } from '@/src/user-auth-tokens/user-auth-token.model';
-import { UserModel } from '@/src/users/user.model';
 import { AuthTokenType, OAuthProviders } from '@/types';
 import { generateOAuthState, getOAuthProvider } from '@/utils';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 
 import { CreateOAuthStateDto } from './dto/create-oauth-state-dto';
 import { CreateUserFromOAuthDto } from './dto/create-user-from-oauth-dto';
-import { UserCredentialsDto } from './dto/user-credentials-dto';
+import { UserCredentialsAfterValidation } from './dto/user-credentials-dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    private userModel: UserModel,
     private userAuthTokenModel: UserAuthTokenModel,
   ) {}
 
-  async loginUser(userCredentialsDto: UserCredentialsDto) {
-    const user = await this.userModel.find({
-      where: {
-        email: userCredentialsDto.email,
-      },
-      select: ['id'],
-    });
+  async loginUser(userID: UserCredentialsAfterValidation['id'], res: Response) {
     const accessToken = this.jwtService.sign(
       {
-        id: user.id,
+        id: userID,
       },
       {
         expiresIn: '15m',
       },
     );
     const { token: refreshToken } = await this.userAuthTokenModel.create({
-      userID: user.id,
+      userID,
       type: AuthTokenType.REFRESH_TOKEN,
     });
 
-    return { accessToken, refreshToken };
+    // SameSite: https://web.dev/samesite-cookies-explained/
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 15 * 60_000), // 15 minutes
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 48 * 60 * 60_000), // 2 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    });
   }
 
   async createOAuthState({ provider }: CreateOAuthStateDto) {
