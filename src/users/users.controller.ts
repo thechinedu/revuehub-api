@@ -10,6 +10,7 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Res,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { UserSerializer } from './user.serializer';
 import { UserService } from './user.service';
 import { createUserValidator } from './validators/create-user.validator';
 import { createOAuthUserValidator } from './validators/create-oauth-user.validator';
+import { Response } from 'express';
 
 @Controller({
   path: 'users',
@@ -34,9 +36,14 @@ export class UsersController {
   @Post()
   @UsePipes(new ValidationPipe(createUserValidator))
   @UseInterceptors(ClassSerializerInterceptor)
-  async createUser(@Body() createUserDto: CreateUserDto) {
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const userEntity = await this.userService.createUser(createUserDto);
     const data = new UserSerializer(userEntity);
+
+    await this.authService.loginUser(userEntity.id, res);
 
     return {
       status: 'success',
@@ -50,6 +57,7 @@ export class UsersController {
   @UseInterceptors(ClassSerializerInterceptor)
   async createUserFromOAuthInfo(
     @Body() createUserFromOAuthDto: CreateUserFromOAuthDto,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const oauthUserInfo = await this.authService.fetchOAuthUserInfo(
       createUserFromOAuthDto,
@@ -75,6 +83,8 @@ export class UsersController {
       token,
     });
     const data = new UserSerializer(userEntity);
+
+    await this.authService.loginUser(userEntity.id, res);
 
     return {
       status: 'success',
