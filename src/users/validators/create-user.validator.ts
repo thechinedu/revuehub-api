@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { Validator } from '@/utils';
+import { Validator } from '@/src/pipes/validation';
 import Joi, {
   CustomValidator,
   ExternalValidationFunction,

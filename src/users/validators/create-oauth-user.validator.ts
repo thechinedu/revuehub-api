@@ -1,6 +1,6 @@
 import { memoryStore } from '@/db';
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
-import { Validator } from '@/utils';
+import { Validator } from '@/types';
 import Joi, { ExternalValidationFunction, ValidationErrorItem } from 'joi';
 
 const { object, string } = Joi.types();

@@ -1,5 +1,6 @@
 import { db } from '@/db';
-import { Validator, verifyPassword } from '@/utils';
+import { verifyPassword } from '@/utils';
+import { Validator } from '@/types';
 import Joi, { ValidationErrorItem } from 'joi';
 
 import { UserCredentialsDto } from '../dto/user-credentials-dto';
@@ -8,7 +9,7 @@ const { object, string } = Joi.types();
 
 export const schema: Joi.ObjectSchema<UserCredentialsDto> = object.keys({
   email: string.email().required(),
-  password: string.min(8).required(),
+  password: string.required(),
 });
 
 // TODO: move validation messages into their own directory and reuse across application

@@ -1,7 +1,9 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '../guards/auth';
 import { RepositoryService } from './repository.service';
 
 @Controller({ path: 'repositories', version: '1' })
+@UseGuards(AuthGuard)
 export class RepositoriesController {
   constructor(private repositoryService: RepositoryService) {}
 

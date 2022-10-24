@@ -1,5 +1,6 @@
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { CreateUserDto } from '@/src/users/dto/create-user-dto';
+import { ObjectSchema, ValidationErrorItem } from 'joi';
 
 // TODO: error responses (5xx errors) are currently handled by nestjs. The structure
 // of the response object doesn't match this type.
@@ -33,3 +34,10 @@ export enum AuthTokenType {
   OAUTH_TOKEN = 'OAUTH_TOKEN',
   REFRESH_TOKEN = 'REFRESH_TOKEN',
 }
+
+export type Validator<T = any> = {
+  schema: ObjectSchema<T>;
+  beforeValidate?: (value: T) => Promise<T>;
+  afterValidate?: (value: T) => Promise<T>;
+  serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => any;
+};

@@ -1,5 +1,4 @@
-import { OAuthProviders } from '@/types';
-import { Validator } from '@/utils';
+import { OAuthProviders, Validator } from '@/types';
 import Joi, { CustomValidator, ValidationErrorItem } from 'joi';
 
 import { CreateOAuthStateDto } from '../dto/create-oauth-state-dto';
