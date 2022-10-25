@@ -1,8 +1,8 @@
 import { AuthService } from '@/src/auth/auth.service';
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { UserAuthTokenService } from '@/src/user-auth-tokens/user-auth-token.service';
+import { ValidationPipe } from '@/src/pipes/validation';
 import { AuthTokenType } from '@/types';
-import { ValidationPipe } from '@/utils';
 import {
   Body,
   ClassSerializerInterceptor,

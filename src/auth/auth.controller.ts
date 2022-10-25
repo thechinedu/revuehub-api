@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@/utils';
+import { ValidationPipe } from '@/src/pipes/validation';
 import {
   Body,
   Controller,
