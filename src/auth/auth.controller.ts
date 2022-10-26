@@ -1,16 +1,18 @@
+import { AuthGuard } from '@/src/guards/auth';
 import { ValidationPipe } from '@/src/pipes/validation';
+import { RequestWithUserID } from '@/types';
 import {
   Body,
   Controller,
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Res,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { AuthGuard } from '../guards/auth';
 
 import { AuthService } from './auth.service';
 import { CreateOAuthStateDto } from './dto/create-oauth-state-dto';
@@ -51,7 +53,10 @@ export class AuthController {
   @Post('/refresh')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard)
-  async refresh() {
-    // await this.authService.refresh(refreshToken);
+  async refresh(
+    @Req() req: RequestWithUserID,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.authService.refresh(req.cookies.refreshToken, req.userID, res);
   }
 }

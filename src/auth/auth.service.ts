@@ -18,32 +18,7 @@ export class AuthService {
   ) {}
 
   async loginUser(userID: UserCredentialsAfterValidation['id'], res: Response) {
-    const accessToken = this.jwtService.sign(
-      {
-        id: userID,
-      },
-      {
-        expiresIn: '15m',
-      },
-    );
-    const { token: refreshToken } = await this.userAuthTokenModel.create({
-      userID,
-      type: AuthTokenType.REFRESH_TOKEN,
-    });
-
-    // SameSite: https://web.dev/samesite-cookies-explained/
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 15 * 60_000), // 15 minutes
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 48 * 60 * 60_000), // 2 days
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    });
+    await this.setSessionTokens(userID, res);
   }
 
   async createOAuthState({ provider }: CreateOAuthStateDto) {
@@ -74,8 +49,45 @@ export class AuthService {
     return userInfo;
   }
 
-  refresh(refreshToken: string) {
-    // generate new access and refresh token pair
-    //
+  refresh(refreshToken: string, userID: number, res: Response) {
+    // TODO: Remove refreshToken on client as well
+    this.userAuthTokenModel.removeAll({
+      where: {
+        user_id: userID,
+        token: refreshToken,
+        type: AuthTokenType.REFRESH_TOKEN,
+      },
+    });
+
+    this.setSessionTokens(userID, res);
+  }
+
+  private async setSessionTokens(userID: number, res: Response) {
+    const accessToken = this.jwtService.sign(
+      {
+        id: userID,
+      },
+      {
+        expiresIn: '15m',
+      },
+    );
+    const { token: refreshToken } = await this.userAuthTokenModel.create({
+      userID,
+      type: AuthTokenType.REFRESH_TOKEN,
+    });
+
+    // SameSite: https://web.dev/samesite-cookies-explained/
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 15 * 60_000), // 15 minutes
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 48 * 60 * 60_000), // 2 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    });
   }
 }

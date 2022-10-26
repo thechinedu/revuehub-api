@@ -1,4 +1,5 @@
 import { UserAuthTokenService } from '@/src/user-auth-tokens/user-auth-token.service';
+import { RequestWithUserID } from '@/types';
 import {
   CanActivate,
   ExecutionContext,
@@ -30,16 +31,17 @@ export class AuthGuard implements CanActivate {
     } = req;
 
     if (req.path.endsWith('/auth/refresh')) {
-      return this.validateRefreshToken(refreshToken);
+      return this.validateRefreshToken(refreshToken, req);
     }
 
-    return Promise.resolve(this.validateAccessToken(accessToken));
+    return Promise.resolve(this.validateAccessToken(accessToken, req));
   }
 
-  private validateAccessToken(token: string) {
+  private validateAccessToken(token: string, req: RequestWithUserID) {
     try {
       const payload = this.jwtService.verify(token);
-      console.log({ payload });
+
+      req.userID = payload.id;
 
       return true;
     } catch {
@@ -47,7 +49,7 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private async validateRefreshToken(token: string) {
+  private async validateRefreshToken(token: string, req: RequestWithUserID) {
     if (!token) throw UnauthorizedException;
 
     const refreshToken = await this.userAuthTokenService.findRefreshToken(
@@ -63,6 +65,8 @@ export class AuthGuard implements CanActivate {
     } = refreshToken;
 
     if (!isValid || Date.now() > +expiresAt) throw UnauthorizedException;
+
+    req.userID = userID;
 
     return true;
   }
