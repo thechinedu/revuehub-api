@@ -19,9 +19,19 @@ type UserAuthTokenEntity = {
 type UserAuthTokenEntityKeys = keyof UserAuthTokenEntity;
 
 export type RemoveAllArgs = {
-  where: PartialRecord<UserAuthTokenEntityKeys, string>;
+  where: Partial<{
+    id: number;
+    user_id: number;
+    token: string;
+    type: AuthTokenType;
+    is_valid: boolean;
+    expires_at: Date;
+    created_at: Date;
+    updated_at: Date;
+  }>;
 };
 
+// TODO: Remove all usage of PartialRecord and specify keys explicitly
 type FindUserAuthTokenArgs = {
   where: PartialRecord<UserAuthTokenEntityKeys, string>;
   select: UserAuthTokenEntityKeys[];

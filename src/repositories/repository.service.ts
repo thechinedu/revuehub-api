@@ -5,27 +5,31 @@ import { RepositoryModel } from './repository.model';
 export class RepositoryService {
   constructor(private repositoryModel: RepositoryModel) {}
 
-  async fetchActiveRepos() {
+  async fetchActiveRepos(user_id: number) {
     return await this.repositoryModel.findAll({
       where: {
         has_pulled_content: true,
+        user_id,
       },
       select: ['id', 'name', 'description', 'last_updated'],
     });
   }
 
-  async fetchInactiveRepos() {
+  async fetchInactiveRepos(user_id: number) {
     return await this.repositoryModel.findAll({
       where: {
         has_pulled_content: false,
+        user_id,
       },
       select: ['id', 'name', 'description', 'last_updated'],
     });
   }
 
-  async fetchAllRepos() {
+  async fetchAllRepos(user_id: number) {
     return await this.repositoryModel.findAll({
-      where: {},
+      where: {
+        user_id,
+      },
       select: [
         'id',
         'name',
