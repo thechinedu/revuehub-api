@@ -1,3 +1,4 @@
+import { AuthTokenType } from '@/types';
 import { Injectable } from '@nestjs/common';
 
 import { CreateAuthTokenDto } from './dto/create-auth-token-dto';
@@ -15,6 +16,13 @@ export class UserAuthTokenService {
   removeAll({ where }: RemoveAllArgs) {
     this.userAuthTokenModel.removeAll({
       where,
+    });
+  }
+
+  findRefreshToken(token: string) {
+    return this.userAuthTokenModel.find({
+      where: { type: AuthTokenType.REFRESH_TOKEN, token },
+      select: ['is_valid', 'expires_at', 'user_id'],
     });
   }
 }

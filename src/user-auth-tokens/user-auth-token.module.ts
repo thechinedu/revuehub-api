@@ -5,6 +5,6 @@ import { UserAuthTokenService } from './user-auth-token.service';
 
 @Module({
   providers: [UserAuthTokenModel, UserAuthTokenService],
-  exports: [UserAuthTokenService],
+  exports: [UserAuthTokenModel, UserAuthTokenService],
 })
 export class UserAuthTokenModule {}

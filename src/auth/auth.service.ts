@@ -73,4 +73,9 @@ export class AuthService {
 
     return userInfo;
   }
+
+  refresh(refreshToken: string) {
+    // generate new access and refresh token pair
+    //
+  }
 }
