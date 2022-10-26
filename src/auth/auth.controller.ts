@@ -6,9 +6,11 @@ import {
   HttpStatus,
   Post,
   Res,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { AuthGuard } from '../guards/auth';
 
 import { AuthService } from './auth.service';
 import { CreateOAuthStateDto } from './dto/create-oauth-state-dto';
@@ -44,5 +46,12 @@ export class AuthController {
         state,
       },
     };
+  }
+
+  @Post('/refresh')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthGuard)
+  async refresh() {
+    // await this.authService.refresh(refreshToken);
   }
 }

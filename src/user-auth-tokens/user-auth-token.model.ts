@@ -10,6 +10,7 @@ type UserAuthTokenEntity = {
   user_id: number;
   token: string;
   type: AuthTokenType;
+  is_valid: boolean;
   expires_at: Date;
   created_at: Date;
   updated_at: Date;
@@ -19,6 +20,11 @@ type UserAuthTokenEntityKeys = keyof UserAuthTokenEntity;
 
 export type RemoveAllArgs = {
   where: PartialRecord<UserAuthTokenEntityKeys, string>;
+};
+
+type FindUserAuthTokenArgs = {
+  where: PartialRecord<UserAuthTokenEntityKeys, string>;
+  select: UserAuthTokenEntityKeys[];
 };
 
 const authTokenExpiryOptions = {
@@ -53,6 +59,13 @@ export class UserAuthTokenModel {
 
   async removeAll({ where }: RemoveAllArgs) {
     await db('user_auth_tokens').where(where).del();
+  }
+
+  async find({
+    where,
+    select,
+  }: FindUserAuthTokenArgs): Promise<UserAuthTokenEntity> {
+    return (await db('user_auth_tokens').select(select).where(where))[0];
   }
 
   private async generateAuthToken(): Promise<string> {
