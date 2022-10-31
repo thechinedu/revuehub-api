@@ -49,9 +49,9 @@ export class AuthService {
     return userInfo;
   }
 
-  refresh(refreshToken: string, userID: number, res: Response) {
+  async refresh(refreshToken: string, userID: number, res: Response) {
     // TODO: Remove refreshToken on client as well
-    this.userAuthTokenModel.removeAll({
+    await this.userAuthTokenModel.removeAll({
       where: {
         user_id: userID,
         token: refreshToken,
@@ -59,7 +59,7 @@ export class AuthService {
       },
     });
 
-    this.setSessionTokens(userID, res);
+    await this.setSessionTokens(userID, res);
   }
 
   private async setSessionTokens(userID: number, res: Response) {
