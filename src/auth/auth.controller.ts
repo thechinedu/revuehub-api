@@ -4,6 +4,7 @@ import { RequestWithUserID } from '@/types';
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -58,5 +59,16 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.refresh(req.cookies.refreshToken, req.userID, res);
+  }
+
+  @Get('/me')
+  @UseGuards(AuthGuard)
+  getCurrentUser(@Req() req: RequestWithUserID) {
+    return {
+      status: 'success',
+      data: {
+        userID: req.userID,
+      },
+    };
   }
 }
