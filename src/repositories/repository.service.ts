@@ -1,9 +1,16 @@
+import { UserAuthTokenService } from '@/src/user-auth-tokens/user-auth-token.service';
+import { OAuthProviders } from '@/types';
+import { getOAuthProvider } from '@/utils';
 import { Injectable } from '@nestjs/common';
+
 import { RepositoryModel } from './repository.model';
 
 @Injectable()
 export class RepositoryService {
-  constructor(private repositoryModel: RepositoryModel) {}
+  constructor(
+    private repositoryModel: RepositoryModel,
+    private userAuthTokenService: UserAuthTokenService,
+  ) {}
 
   async fetchActiveRepos(user_id: number) {
     return await this.repositoryModel.findAll({
@@ -26,7 +33,7 @@ export class RepositoryService {
   }
 
   async fetchAllRepos(user_id: number) {
-    return await this.repositoryModel.findAll({
+    const repos = await this.repositoryModel.findAll({
       where: {
         user_id,
       },
@@ -38,5 +45,34 @@ export class RepositoryService {
         'has_pulled_content',
       ],
     });
+
+    if (repos.length) return repos;
+
+    // TODO: get the provider from request
+    // Only Github is supported for now so this is fine. If support is added for
+    // other git providers in the future, this will need to change
+    const {
+      token,
+      expires_at: expiresAt,
+      is_valid: isValid,
+    } = await this.userAuthTokenService.findOAuthTokenForUser(1); // TODO: make this the user_id
+    console.log({ token }, 'repo service');
+
+    // TODO: throw an error instead. client should redirect to oauth provider auth page
+    if (!token || !isValid || Date.now() > +expiresAt) return repos;
+
+    const oauthProviderStrategy = getOAuthProvider(OAuthProviders.GITHUB);
+    const providerRepoList = await oauthProviderStrategy.getUserRepos({
+      token,
+    });
+
+    console.log({ providerRepoList, len: providerRepoList.length });
+
+    // Sync with github
+    // Fetch repositories for the user
+    // Update db with repo list from github
+    // return repo list
+
+    return repos;
   }
 }

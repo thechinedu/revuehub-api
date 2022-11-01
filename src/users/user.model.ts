@@ -1,5 +1,4 @@
 import { db } from '@/db';
-import { PartialRecord } from '@/types';
 import { hashPassword } from '@/utils';
 import { Injectable } from '@nestjs/common';
 
@@ -21,7 +20,7 @@ export type UserEntity = {
 type UserEntityKeys = keyof UserEntity;
 
 type FindUserArgs = {
-  where: PartialRecord<UserEntityKeys, string>;
+  where: Partial<UserEntity>;
   select: UserEntityKeys[];
 };
 

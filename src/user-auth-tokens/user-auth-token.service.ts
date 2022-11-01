@@ -25,4 +25,11 @@ export class UserAuthTokenService {
       select: ['is_valid', 'expires_at', 'user_id'],
     });
   }
+
+  findOAuthTokenForUser(user_id: number) {
+    return this.userAuthTokenModel.find({
+      where: { type: AuthTokenType.OAUTH_TOKEN, user_id },
+      select: ['token', 'expires_at', 'is_valid'],
+    });
+  }
 }

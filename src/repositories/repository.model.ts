@@ -1,5 +1,4 @@
 import { db } from '@/db';
-import { PartialRecord } from '@/types';
 
 import { Injectable } from '@nestjs/common';
 
@@ -20,7 +19,7 @@ type RepositoryEntityKeys = keyof RepositoryEntity;
 
 // TODO: Move to general types
 type FindArgs = {
-  where: PartialRecord<RepositoryEntityKeys, string | number | boolean | Date>;
+  where: Partial<RepositoryEntity>;
   select: RepositoryEntityKeys[];
 };
 
