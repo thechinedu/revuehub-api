@@ -1,5 +1,5 @@
 import { db } from '@/db';
-import { AuthTokenType, PartialRecord } from '@/types';
+import { AuthTokenType } from '@/types';
 import { generateRandomToken } from '@/utils';
 import { Injectable } from '@nestjs/common';
 
@@ -19,21 +19,11 @@ type UserAuthTokenEntity = {
 type UserAuthTokenEntityKeys = keyof UserAuthTokenEntity;
 
 export type RemoveAllArgs = {
-  where: Partial<{
-    id: number;
-    user_id: number;
-    token: string;
-    type: AuthTokenType;
-    is_valid: boolean;
-    expires_at: Date;
-    created_at: Date;
-    updated_at: Date;
-  }>;
+  where: Partial<UserAuthTokenEntity>;
 };
 
-// TODO: Remove all usage of PartialRecord and specify keys explicitly
 type FindUserAuthTokenArgs = {
-  where: PartialRecord<UserAuthTokenEntityKeys, string>;
+  where: Partial<UserAuthTokenEntity>;
   select: UserAuthTokenEntityKeys[];
 };
 

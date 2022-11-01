@@ -24,12 +24,8 @@ type GetUserInfoRet = Promise<{
 
 export type OAuthProviderStrategy = {
   getUserInfo: (userInfoOptions: UserInfoOptions) => GetUserInfoRet;
+  getUserRepos: (userReposOptions: any) => any; // TODO: fix any
 };
-
-export type PartialRecord<
-  T extends string | number | symbol,
-  K = any,
-> = Partial<Record<T, K>>;
 
 export enum AuthTokenType {
   OAUTH_TOKEN = 'OAUTH_TOKEN',
