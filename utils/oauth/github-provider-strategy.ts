@@ -51,33 +51,33 @@ const getUserInfo = async (options: CreateUserFromOAuthDto) => {
 };
 
 // TODO: Fix any
-const getUserRepos = async ({ token }: any) => {
+const getUserRepos = async ({ token, user_id }: any) => {
   try {
     const { data: repoList } = await request('GET /user/repos', {
       headers: {
         authorization: `token ${token}`,
+        affiliation: 'owner',
       },
     });
 
-    // console.log({ repoList });
-    return repoList;
-    // return repoList.map(
-    //   ({
-    //     id,
-    //     node_id,
-    //     full_name,
-    //     description,
-    //     default_branch,
-    //     updated_at,
-    //   }) => ({
-    //     snapshot_id: id,
-    //     node_id,
-    //     name: full_name,
-    //     description,
-    //     default_branch,
-    //     last_updated: updated_at ? new Date(updated_at) : null,
-    //   }),
-    // );
+    return repoList.map(
+      ({
+        id,
+        node_id,
+        full_name,
+        description,
+        default_branch,
+        updated_at,
+      }) => ({
+        snapshot_id: id,
+        node_id,
+        name: full_name,
+        description,
+        default_branch,
+        last_updated: updated_at ? new Date(updated_at) : null,
+        user_id,
+      }),
+    );
   } catch (err) {
     console.log(err); // TODO: Integrate with error monitoring service
     return null;
