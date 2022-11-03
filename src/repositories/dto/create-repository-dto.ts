@@ -4,6 +4,9 @@ export type CreateRepositoryDto = {
   node_id: string;
   name: string;
   default_branch: string;
-  description?: string;
-  last_updated?: Date;
+  // Match field types from github
+  // If additional git providers are supported in the future,
+  // these might need to change
+  description: string | null;
+  last_updated: Date | null;
 };
