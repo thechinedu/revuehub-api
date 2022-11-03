@@ -1,5 +1,8 @@
-import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
-import { OAuthProviderStrategy } from '@/types';
+import {
+  OAuthProviderStrategy,
+  UserInfoOptions,
+  UserReposOptions,
+} from '@/types';
 import { createOAuthAppAuth } from '@octokit/auth-oauth-app';
 import { request } from '@octokit/request';
 
@@ -13,7 +16,7 @@ const auth = createOAuthAppAuth({
   clientSecret: OAUTH_CLIENT_SECRET,
 });
 
-const getUserInfo = async (options: CreateUserFromOAuthDto) => {
+const getUserInfo = async (options: UserInfoOptions) => {
   try {
     const { token } = await auth({ type: 'oauth-user', ...options });
     // TODO: Email can be null. Handle case for when email is null
@@ -50,14 +53,15 @@ const getUserInfo = async (options: CreateUserFromOAuthDto) => {
   }
 };
 
-// TODO: Fix any
-const getUserRepos = async ({ token, user_id }: any) => {
+const getUserRepos = async ({ token, user_id }: UserReposOptions) => {
   try {
     const { data: repoList } = await request('GET /user/repos', {
       headers: {
         authorization: `token ${token}`,
-        affiliation: 'owner',
       },
+      type: 'owner',
+      sort: 'updated',
+      direction: 'desc',
     });
 
     return repoList.map(

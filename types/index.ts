@@ -1,4 +1,5 @@
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
+import { CreateRepositoryDto } from '@/src/repositories/dto/create-repository-dto';
 import { CreateUserDto } from '@/src/users/dto/create-user-dto';
 import { ObjectSchema, ValidationErrorItem } from 'joi';
 import { Request } from 'express';
@@ -16,15 +17,21 @@ export enum OAuthProviders {
   GITHUB = 'github',
 }
 
-type UserInfoOptions = CreateUserFromOAuthDto;
+export type UserInfoOptions = CreateUserFromOAuthDto;
 type GetUserInfoRet = Promise<{
   data: CreateUserDto;
   token: string;
 } | null>;
 
+export type UserReposOptions = {
+  token: string;
+  user_id: number;
+};
+type GetUserReposRet = Promise<CreateRepositoryDto[] | null>;
+
 export type OAuthProviderStrategy = {
   getUserInfo: (userInfoOptions: UserInfoOptions) => GetUserInfoRet;
-  getUserRepos: (userReposOptions: any) => any; // TODO: fix any
+  getUserRepos: (userReposOptions: UserReposOptions) => GetUserReposRet;
 };
 
 export enum AuthTokenType {

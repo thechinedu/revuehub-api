@@ -33,7 +33,7 @@ export class RepositoryService {
   }
 
   async fetchAllRepos(user_id: number) {
-    let repos = await this.repositoryModel.findAll({
+    const repos = await this.repositoryModel.findAll({
       where: {
         user_id,
       },
@@ -58,8 +58,7 @@ export class RepositoryService {
       token,
       expires_at: expiresAt,
       is_valid: isValid,
-    } = await this.userAuthTokenService.findOAuthTokenForUser(1); // TODO: make this the user_id
-    // console.log({ token }, 'repo service');
+    } = await this.userAuthTokenService.findOAuthTokenForUser(user_id);
 
     // TODO: throw an error instead. client should redirect to oauth provider auth page
     if (!token || !isValid || Date.now() > +expiresAt) return repos;
@@ -70,15 +69,12 @@ export class RepositoryService {
       user_id,
     });
 
-    repos = await this.repositoryModel.bulkCreate(providerRepoList);
+    if (providerRepoList?.length) {
+      return await this.repositoryModel.bulkCreate(providerRepoList);
+    }
 
-    console.log({ repos });
-
-    // Sync with github
-    // Fetch repositories for the user
-    // Update db with repo list from github
-    // return repo list
-
-    return providerRepoList;
+    // TODO: if it gets here, the oauth token has been revoked. Throw an error instead.
+    // client should redirect to oauth provider auth page
+    return [];
   }
 }
