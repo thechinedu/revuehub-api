@@ -30,7 +30,7 @@
     "migrate:rollback:test": "DOTENV_CONFIG_PATH=.env.test yarn knex migrate:rollback"
   },
   "dependencies": {
-    "@nestjs/common": "^9.1.4",
+    "@nestjs/common": "^9.1.6",
     "@nestjs/core": "^9.1.4",
     "@nestjs/jwt": "^9.0.0",
     "@nestjs/platform-express": "^9.1.4",
