@@ -33,7 +33,7 @@
     "@nestjs/common": "^9.1.6",
     "@nestjs/core": "^9.1.4",
     "@nestjs/jwt": "^9.0.0",
-    "@nestjs/platform-express": "^9.1.4",
+    "@nestjs/platform-express": "^9.1.6",
     "@octokit/auth-oauth-app": "^5.0.4",
     "@octokit/request": "^6.2.2",
     "argon2": "^0.30.1",
