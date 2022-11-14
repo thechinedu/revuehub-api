@@ -1,7 +1,7 @@
 import { UserAuthTokenService } from '@/src/user-auth-tokens/user-auth-token.service';
 import { OAuthProviders } from '@/types';
 import { getOAuthProvider } from '@/utils';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { RepositoryModel } from './repository.model';
 
@@ -76,5 +76,21 @@ export class RepositoryService {
     // TODO: if it gets here, the oauth token has been revoked. Throw an error instead.
     // client should redirect to oauth provider auth page
     return [];
+  }
+
+  async addRepoContents(user_id: number, repoId: number) {
+    const repository = await this.repositoryModel.find({
+      where: { id: repoId, user_id },
+      select: ['name', 'default_branch'],
+    });
+
+    if (!repository) {
+      throw new HttpException(
+        { status: 'fail', message: 'Bad request' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const [repoOwner, repoName] = repository.name.split('/');
   }
 }
