@@ -61,6 +61,7 @@ export class UserAuthTokenModel {
     await db('user_auth_tokens').where(where).del();
   }
 
+  // TODO: use Promise<UserAuthTokenEntity | undefined> instead as it is the correct type
   async find({
     where,
     select,

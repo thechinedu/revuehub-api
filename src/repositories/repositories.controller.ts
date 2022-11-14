@@ -1,5 +1,15 @@
 import { RequestWithUserID } from '@/types';
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AuthGuard } from '../guards/auth';
 import { RepositoryService } from './repository.service';
@@ -20,6 +30,16 @@ export class RepositoriesController {
       status: 'success',
       data,
     };
+  }
+
+  @Post(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async AddRepoContents(
+    @Req() req: RequestWithUserID,
+    @Param('id') id: string,
+  ) {
+    // await this.repositoryService.addRepoContents(req.userID, +id);
+    await this.repositoryService.addRepoContents(1, +id);
   }
 
   // TODO: add runtime validation for status value

@@ -28,6 +28,13 @@ const BATCH_SIZE = 30;
 
 @Injectable()
 export class RepositoryModel {
+  async find({
+    where,
+    select,
+  }: FindArgs): Promise<RepositoryEntity | undefined> {
+    return (await db('repositories').select(select).where(where))[0];
+  }
+
   async findAll({ where, select }: FindArgs): Promise<RepositoryEntity[]> {
     return await db('repositories').select(select).where(where);
   }

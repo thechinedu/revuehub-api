@@ -79,6 +79,7 @@ const getUserRepos = async ({ token, user_id }: UserReposOptions) => {
         description,
         default_branch,
         last_updated: updated_at ? new Date(updated_at) : null,
+        last_synced: new Date(Date.now()),
         user_id,
       }),
     );
