@@ -1,12 +1,7 @@
-import {
-  OAuthProviderStrategy,
-  UserInfoOptions,
-  UserReposOptions,
-} from '@/types';
+import { UserInfoOptions } from '@/types';
+import { generateRandomToken } from '@/utils';
 import { createOAuthAppAuth } from '@octokit/auth-oauth-app';
 import { request } from '@octokit/request';
-
-import { generateRandomToken } from '../';
 
 const OAUTH_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID as string;
 const OAUTH_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET as string;
@@ -16,7 +11,7 @@ const auth = createOAuthAppAuth({
   clientSecret: OAUTH_CLIENT_SECRET,
 });
 
-const getUserInfo = async (options: UserInfoOptions) => {
+export const getUserInfo = async (options: UserInfoOptions) => {
   try {
     const { token } = await auth({ type: 'oauth-user', ...options });
     // TODO: Email can be null. Handle case for when email is null
@@ -51,45 +46,4 @@ const getUserInfo = async (options: UserInfoOptions) => {
     console.log(err); // TODO: Integrate with error monitoring service
     return null;
   }
-};
-
-const getUserRepos = async ({ token, user_id }: UserReposOptions) => {
-  try {
-    const { data: repoList } = await request('GET /user/repos', {
-      headers: {
-        authorization: `token ${token}`,
-      },
-      type: 'owner',
-      sort: 'updated',
-      direction: 'desc',
-    });
-
-    return repoList.map(
-      ({
-        id,
-        node_id,
-        full_name,
-        description,
-        default_branch,
-        updated_at,
-      }) => ({
-        snapshot_id: id,
-        node_id,
-        name: full_name,
-        description,
-        default_branch,
-        last_updated: updated_at ? new Date(updated_at) : null,
-        last_synced: new Date(Date.now()),
-        user_id,
-      }),
-    );
-  } catch (err) {
-    console.log(err); // TODO: Integrate with error monitoring service
-    return null;
-  }
-};
-
-export const githubProviderStrategy: OAuthProviderStrategy = {
-  getUserInfo,
-  getUserRepos,
 };
