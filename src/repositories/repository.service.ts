@@ -5,6 +5,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { RepositoryModel } from './repository.model';
 
+const OAuthAccessTokenRevokedException = new HttpException(
+  { status: 'fail', message: 'OAuth access token is no longer valid' },
+  HttpStatus.UNPROCESSABLE_ENTITY,
+);
+
 @Injectable()
 export class RepositoryService {
   constructor(
@@ -51,18 +56,11 @@ export class RepositoryService {
       return repos;
     }
 
+    const token = await this.getOAuthAccessToken(user_id);
+
     // TODO: get the provider from request
     // Only Github is supported for now so this is fine. If support is added for
     // other git providers in the future, this will need to change
-    const {
-      token,
-      expires_at: expiresAt,
-      is_valid: isValid,
-    } = await this.userAuthTokenService.findOAuthTokenForUser(user_id);
-
-    // TODO: throw an error instead. client should redirect to oauth provider auth page
-    if (!token || !isValid || Date.now() > +expiresAt) return repos;
-
     const oauthProviderStrategy = getOAuthProvider(OAuthProviders.GITHUB);
     const providerRepoList = await oauthProviderStrategy.getUserRepos({
       token,
@@ -91,6 +89,38 @@ export class RepositoryService {
       );
     }
 
-    const [repoOwner, repoName] = repository.name.split('/');
+    const token = await this.getOAuthAccessToken(user_id);
+
+    const [owner, repo] = repository.name.split('/');
+
+    // TODO: get the provider from request
+    // Only Github is supported for now so this is fine. If support is added for
+    // other git providers in the future, this will need to change
+    const oauthProviderStrategy = getOAuthProvider(OAuthProviders.GITHUB);
+
+    const repoContents = await oauthProviderStrategy.getRepoContents({
+      token,
+      owner,
+      repo,
+      tree_sha: repository.default_branch, // TODO: get branch name from request object
+    });
+  }
+
+  private async getOAuthAccessToken(user_id: number) {
+    try {
+      const {
+        token,
+        expires_at: expiresAt,
+        is_valid: isValid,
+      } = await this.userAuthTokenService.findOAuthTokenForUser(user_id);
+
+      if (!token || !isValid || Date.now() > +expiresAt) {
+        throw OAuthAccessTokenRevokedException;
+      }
+
+      return token;
+    } catch {
+      throw OAuthAccessTokenRevokedException;
+    }
   }
 }

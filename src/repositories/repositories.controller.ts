@@ -32,7 +32,7 @@ export class RepositoriesController {
     };
   }
 
-  @Post(':id')
+  @Post(':id/contents')
   @HttpCode(HttpStatus.NO_CONTENT)
   async AddRepoContents(
     @Req() req: RequestWithUserID,

@@ -29,9 +29,20 @@ export type UserReposOptions = {
 };
 type GetUserReposRet = Promise<CreateRepositoryDto[] | null>;
 
+export type RepoContentsOptions = {
+  token: string;
+  owner: string;
+  repo: string;
+  tree_sha: string;
+};
+type GetRepoContentsRet = Promise<any>; // TODO: Fix any
+
 export type OAuthProviderStrategy = {
   getUserInfo: (userInfoOptions: UserInfoOptions) => GetUserInfoRet;
   getUserRepos: (userReposOptions: UserReposOptions) => GetUserReposRet;
+  getRepoContents: (
+    repoContentsOptions: RepoContentsOptions,
+  ) => GetRepoContentsRet;
 };
 
 export enum AuthTokenType {
