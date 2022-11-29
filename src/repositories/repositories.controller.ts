@@ -38,8 +38,7 @@ export class RepositoriesController {
     @Req() req: RequestWithUserID,
     @Param('id') id: string,
   ) {
-    // await this.repositoryService.addRepoContents(req.userID, +id);
-    await this.repositoryService.addRepoContents(1, +id);
+    await this.repositoryService.addRepoContents(req.userID, +id);
   }
 
   // TODO: add runtime validation for status value

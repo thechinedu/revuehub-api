@@ -39,7 +39,7 @@ export class UserModel {
   }
 
   async findOrCreate({ email, ...rest }: CreateUserDto): Promise<UserEntity> {
-    const user = this.find({
+    const user = await this.find({
       where: {
         email,
       },

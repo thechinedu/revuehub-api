@@ -1,3 +1,4 @@
+import { RepositoryContentsDto } from '@/src/repositories/dto/repository-contents-dto';
 import { RepoContentsOptions } from '@/types';
 import { request } from '@octokit/request';
 
@@ -6,11 +7,11 @@ export const getRepoContents = async ({
   repo,
   owner,
   tree_sha,
+  repository_id,
 }: RepoContentsOptions) => {
   try {
-    console.log('Getting repo contents');
     const {
-      data: { tree, truncated },
+      data: { tree },
     } = await request('GET /repos/{owner}/{repo}/git/trees/{tree_sha}', {
       headers: {
         authorization: `token ${token}`,
@@ -21,9 +22,15 @@ export const getRepoContents = async ({
       recursive: '1',
     });
 
-    console.log({ truncated, tree });
-
-    return [];
+    return tree.map(
+      ({ path, type, sha }) =>
+        ({
+          repository_id,
+          path,
+          type,
+          sha,
+        } as RepositoryContentsDto),
+    );
   } catch (err) {
     console.log(err); // TODO: Integrate with error monitoring service
     return null;

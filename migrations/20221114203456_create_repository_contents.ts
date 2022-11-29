@@ -5,8 +5,8 @@ export async function up(knex: Knex): Promise<void> {
     table.increments();
     table.integer('repository_id').unsigned();
     table.string('type');
-    table.string('path').unique();
-    table.string('sha').unique();
+    table.string('path');
+    table.string('sha');
     table.timestamps(false, true);
 
     table.foreign('repository_id').references('repositories.id');
