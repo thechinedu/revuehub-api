@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { RepositoriesController } from './repositories.controller';
 import { RepositoryModel } from './repository.model';
+import { RepositoryContentModel } from './repository-content.model';
 import { RepositoryService } from './repository.service';
 
 @Module({
@@ -12,6 +13,6 @@ import { RepositoryService } from './repository.service';
     UserAuthTokenModule,
   ],
   controllers: [RepositoriesController],
-  providers: [RepositoryModel, RepositoryService],
+  providers: [RepositoryModel, RepositoryContentModel, RepositoryService],
 })
 export class RepositoriesModule {}

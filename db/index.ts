@@ -1,10 +1,10 @@
 import 'dotenv/config';
 
-import DBConfig, { environment } from '@/knexfile';
+import DBConfig from '@/knexfile';
 import knex from 'knex';
 import { createClient } from 'redis';
 
-export const db = knex(DBConfig[process.env.APP_ENV as environment]);
+export const db = knex(DBConfig);
 
 export const memoryStore = (async () => {
   const client = createClient({

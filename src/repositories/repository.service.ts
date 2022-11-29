@@ -4,6 +4,7 @@ import { getOAuthProvider } from '@/utils';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { RepositoryModel } from './repository.model';
+import { RepositoryContentModel } from './repository-content.model';
 
 const OAuthAccessTokenRevokedException = new HttpException(
   { status: 'fail', message: 'OAuth access token is no longer valid' },
@@ -14,11 +15,12 @@ const OAuthAccessTokenRevokedException = new HttpException(
 export class RepositoryService {
   constructor(
     private repositoryModel: RepositoryModel,
+    private repositoryContentModel: RepositoryContentModel,
     private userAuthTokenService: UserAuthTokenService,
   ) {}
 
   async fetchActiveRepos(user_id: number) {
-    return await this.repositoryModel.findAll({
+    return this.repositoryModel.findAll({
       where: {
         has_pulled_content: true,
         user_id,
@@ -28,7 +30,7 @@ export class RepositoryService {
   }
 
   async fetchInactiveRepos(user_id: number) {
-    return await this.repositoryModel.findAll({
+    return this.repositoryModel.findAll({
       where: {
         has_pulled_content: false,
         user_id,
@@ -68,7 +70,7 @@ export class RepositoryService {
     });
 
     if (providerRepoList?.length) {
-      return await this.repositoryModel.bulkCreate(providerRepoList);
+      return this.repositoryModel.bulkCreate(providerRepoList);
     }
 
     // TODO: if it gets here, the oauth token has been revoked. Throw an error instead.
@@ -76,9 +78,9 @@ export class RepositoryService {
     return [];
   }
 
-  async addRepoContents(user_id: number, repoId: number) {
+  async addRepoContents(user_id: number, repository_id: number) {
     const repository = await this.repositoryModel.find({
-      where: { id: repoId, user_id },
+      where: { id: repository_id, user_id },
       select: ['name', 'default_branch'],
     });
 
@@ -103,7 +105,16 @@ export class RepositoryService {
       owner,
       repo,
       tree_sha: repository.default_branch, // TODO: get branch name from request object
+      repository_id,
     });
+
+    if (repoContents?.length) {
+      return this.repositoryContentModel.bulkCreate(repoContents);
+    }
+
+    // TODO: if it gets here, the oauth token has been revoked. Throw an error instead.
+    // client should redirect to oauth provider auth page
+    return [];
   }
 
   private async getOAuthAccessToken(user_id: number) {

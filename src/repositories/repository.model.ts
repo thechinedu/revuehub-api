@@ -1,4 +1,5 @@
 import { db } from '@/db';
+import { BATCH_INSERT_CHUNK_SIZE } from '@/utils/oauth';
 import { Injectable } from '@nestjs/common';
 
 import { CreateRepositoryDto } from './dto/create-repository-dto';
@@ -24,8 +25,6 @@ type FindArgs = {
   select: RepositoryEntityKeys[];
 };
 
-const BATCH_SIZE = 30;
-
 @Injectable()
 export class RepositoryModel {
   async find({
@@ -36,12 +35,12 @@ export class RepositoryModel {
   }
 
   async findAll({ where, select }: FindArgs): Promise<RepositoryEntity[]> {
-    return await db('repositories').select(select).where(where);
+    return db('repositories').select(select).where(where);
   }
   // TODO: Fix any
   async bulkCreate(items: CreateRepositoryDto[]) {
-    return await db
-      .batchInsert('repositories', items as any, BATCH_SIZE)
+    return db
+      .batchInsert('repositories', items as any, BATCH_INSERT_CHUNK_SIZE)
       .returning(['id', 'name', 'description', 'has_pulled_content']);
   }
 }

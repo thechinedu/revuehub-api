@@ -1,5 +1,6 @@
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { CreateRepositoryDto } from '@/src/repositories/dto/create-repository-dto';
+import { RepositoryContentsDto } from '@/src/repositories/dto/repository-contents-dto';
 import { CreateUserDto } from '@/src/users/dto/create-user-dto';
 import { ObjectSchema, ValidationErrorItem } from 'joi';
 import { Request } from 'express';
@@ -34,8 +35,9 @@ export type RepoContentsOptions = {
   owner: string;
   repo: string;
   tree_sha: string;
+  repository_id: number;
 };
-type GetRepoContentsRet = Promise<any>; // TODO: Fix any
+type GetRepoContentsRet = Promise<RepositoryContentsDto[] | null>;
 
 export type OAuthProviderStrategy = {
   getUserInfo: (userInfoOptions: UserInfoOptions) => GetUserInfoRet;
