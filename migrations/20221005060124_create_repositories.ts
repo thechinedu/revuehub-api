@@ -6,7 +6,7 @@ export async function up(knex: Knex): Promise<Knex.SchemaBuilder> {
     table.integer('snapshot_id').unsigned().unique();
     table.string('node_id').unique();
     table.integer('user_id').unsigned();
-    table.string('name').unique(); // TODO: scope to user_id
+    table.string('name');
     table.text('description');
     table.string('default_branch').notNullable();
     table.timestamp('last_updated');
@@ -14,6 +14,7 @@ export async function up(knex: Knex): Promise<Knex.SchemaBuilder> {
     table.boolean('has_pulled_content').defaultTo(false);
 
     table.foreign('user_id').references('users.id');
+    table.unique(['user_id', 'name']);
   });
 }
 

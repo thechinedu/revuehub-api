@@ -26,7 +26,15 @@ export class RepositoryContentModel {
     where,
     select,
   }: FindArgs): Promise<RepositoryContentEntity[]> {
-    return db('repository_contents').select(select).where(where);
+    return db('repository_contents')
+      .select(select)
+      .where(where)
+      .orderBy('type', 'desc')
+      .orderBy('id', 'asc');
+  }
+
+  async find({ where, select }: FindArgs): Promise<RepositoryContentEntity[]> {
+    return (await db('repository_contents').select(select).where(where))[0];
   }
 
   async bulkCreate(items: RepositoryContentsDto[]) {
