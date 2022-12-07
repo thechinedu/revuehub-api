@@ -117,6 +117,48 @@ export class RepositoryService {
     return [];
   }
 
+  async fetchRepoContents(repository_id: number) {
+    const repositoryContents = await this.repositoryContentModel.findAll({
+      where: {
+        repository_id,
+      },
+      select: ['id', 'path', 'type'],
+    });
+
+    if (!repositoryContents) {
+      throw new HttpException(
+        {
+          status: 'fail',
+          message: 'No repository with the given name was found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return repositoryContents;
+  }
+
+  async fetchRepoByName(name: string) {
+    const repository = await this.repositoryModel.find({
+      where: {
+        name,
+      },
+      select: ['id', 'name', 'description'],
+    });
+
+    if (!repository) {
+      throw new HttpException(
+        {
+          status: 'fail',
+          message: 'No repository with the given name was found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return repository;
+  }
+
   private async getOAuthAccessToken(user_id: number) {
     try {
       const {

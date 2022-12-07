@@ -41,6 +41,35 @@ export class RepositoriesController {
     await this.repositoryService.addRepoContents(req.userID, +id);
   }
 
+  @Get('/:id/contents')
+  async fetchRepoContents(@Param('id') id: string) {
+    const data = await this.repositoryService.fetchRepoContents(+id);
+
+    return {
+      status: 'success',
+      data,
+    };
+  }
+
+  @Get('/:owner/:repository')
+  async fetchRepoByName(
+    @Param('owner') owner: string,
+    @Param('repository') repository: string,
+  ) {
+    const repoName = `${owner}/${repository}`;
+    const data = await this.repositoryService.fetchRepoByName(repoName);
+
+    return {
+      status: 'success',
+      data,
+    };
+  }
+
+  @Get('/:repository_id/contents/:content_id')
+  async fetchRepoBlobFile() {
+    // no_op
+  }
+
   // TODO: add runtime validation for status value
   private fetchReposByStatus(userID: number, status?: 'active' | 'inactive') {
     const statusActions = {
