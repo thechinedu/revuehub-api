@@ -33,7 +33,10 @@ export class RepositoryContentModel {
       .orderBy('id', 'asc');
   }
 
-  async find({ where, select }: FindArgs): Promise<RepositoryContentEntity[]> {
+  async find({
+    where,
+    select,
+  }: FindArgs): Promise<RepositoryContentEntity | undefined> {
     return (await db('repository_contents').select(select).where(where))[0];
   }
 

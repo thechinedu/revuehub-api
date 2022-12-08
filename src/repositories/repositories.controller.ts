@@ -66,8 +66,19 @@ export class RepositoriesController {
   }
 
   @Get('/:repository_id/contents/:content_id')
-  async fetchRepoBlobFile() {
-    // no_op
+  async fetchRepoBlobFile(
+    @Req() req: RequestWithUserID,
+    @Param('content_id') contentID: string,
+  ) {
+    const data = await this.repositoryService.fetchRepoBlobFileContents(
+      req.userID,
+      +contentID,
+    );
+
+    return {
+      status: 'success',
+      data,
+    };
   }
 
   // TODO: add runtime validation for status value
