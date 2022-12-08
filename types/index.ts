@@ -39,12 +39,23 @@ export type RepoContentsOptions = {
 };
 type GetRepoContentsRet = Promise<RepositoryContentsDto[] | null>;
 
+export type RepoFileContentsOptions = Pick<
+  RepoContentsOptions,
+  'token' | 'owner' | 'repo'
+> & {
+  file_sha: string;
+};
+type GetRepoFileContentsRet = Promise<string | null>;
+
 export type OAuthProviderStrategy = {
   getUserInfo: (userInfoOptions: UserInfoOptions) => GetUserInfoRet;
   getUserRepos: (userReposOptions: UserReposOptions) => GetUserReposRet;
   getRepoContents: (
     repoContentsOptions: RepoContentsOptions,
   ) => GetRepoContentsRet;
+  getRepoFileContent: (
+    options: RepoFileContentsOptions,
+  ) => GetRepoFileContentsRet;
 };
 
 export enum AuthTokenType {

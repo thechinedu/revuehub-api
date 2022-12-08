@@ -4,6 +4,7 @@ import { getOAuthProvider } from '@/utils';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { RepositoryModel } from './repository.model';
+import { RepositoryBlobModel } from './repository-blob.model';
 import { RepositoryContentModel } from './repository-content.model';
 
 const OAuthAccessTokenRevokedException = new HttpException(
@@ -15,6 +16,7 @@ const OAuthAccessTokenRevokedException = new HttpException(
 export class RepositoryService {
   constructor(
     private repositoryModel: RepositoryModel,
+    private repositoryBlobModel: RepositoryBlobModel,
     private repositoryContentModel: RepositoryContentModel,
     private userAuthTokenService: UserAuthTokenService,
   ) {}
@@ -157,6 +159,68 @@ export class RepositoryService {
     }
 
     return repository;
+  }
+
+  async fetchRepoBlobFileContents(
+    user_id: number,
+    repository_content_id: number,
+  ) {
+    const repoContent = await this.repositoryContentModel.find({
+      where: { id: repository_content_id },
+      select: ['repository_id', 'sha', 'type'],
+    });
+
+    if (!repoContent || repoContent.type !== 'blob') {
+      throw new HttpException(
+        {
+          status: 'fail',
+          message: "File doesn't exist or file is not a blob type",
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const repoFile = await this.repositoryBlobModel.find({
+      where: { repository_content_id },
+      select: ['content'],
+    });
+
+    if (repoFile) return repoFile;
+
+    const repository = await this.repositoryModel.find({
+      where: { id: repoContent.repository_id, user_id },
+      select: ['name'],
+    });
+
+    if (!repository) {
+      throw new HttpException(
+        { status: 'fail', message: 'Bad request' },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const [owner, repo] = repository.name.split('/');
+
+    const token = await this.getOAuthAccessToken(user_id);
+
+    // TODO: get the provider from request
+    // Only Github is supported for now so this is fine. If support is added for
+    // other git providers in the future, this will need to change
+    const oauthProviderStrategy = getOAuthProvider(OAuthProviders.GITHUB);
+
+    const content = await oauthProviderStrategy.getRepoFileContent({
+      token,
+      owner,
+      repo,
+      file_sha: repoContent.sha,
+    });
+
+    if (!content) throw OAuthAccessTokenRevokedException;
+
+    return this.repositoryBlobModel.create({
+      repository_content_id,
+      content,
+    });
   }
 
   private async getOAuthAccessToken(user_id: number) {
