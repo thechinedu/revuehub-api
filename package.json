@@ -27,7 +27,9 @@
     "migrate:down": "yarn knex migrate:down",
     "migrate:rollback": "yarn knex migrate:rollback",
     "migrate:latest:test": "DOTENV_CONFIG_PATH=.env.test yarn knex migrate:latest",
-    "migrate:rollback:test": "DOTENV_CONFIG_PATH=.env.test yarn knex migrate:rollback"
+    "migrate:rollback:test": "DOTENV_CONFIG_PATH=.env.test yarn knex migrate:rollback",
+    "seed:make": "yarn knex seed:make $1 -x ts",
+    "seed:run": "yarn knex seed:run"
   },
   "dependencies": {
     "@nestjs/common": "^9.1.6",
@@ -50,6 +52,7 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
     "@nestjs/cli": "^9.1.4",
     "@nestjs/schematics": "^9.0.3",
     "@nestjs/testing": "^9.1.5",

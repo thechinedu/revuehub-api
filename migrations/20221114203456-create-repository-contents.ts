@@ -9,7 +9,10 @@ export async function up(knex: Knex): Promise<void> {
     table.string('sha');
     table.timestamps(false, true);
 
-    table.foreign('repository_id').references('repositories.id');
+    table
+      .foreign('repository_id')
+      .references('repositories.id')
+      .onDelete('CASCADE');
   });
 }
 

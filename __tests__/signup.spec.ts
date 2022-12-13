@@ -1,5 +1,5 @@
-import { AppModule } from '@/src/app.module';
 import { db, memoryStore } from '@/db';
+import { AppModule } from '@/src/app.module';
 import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
