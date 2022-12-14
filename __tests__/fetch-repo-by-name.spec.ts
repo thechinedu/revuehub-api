@@ -2,17 +2,14 @@ import { db, memoryStore } from '@/db';
 import { AppModule } from '@/src/app.module';
 import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 
 describe('Fetch repo by name', () => {
   let app: INestApplication;
-  const requestBody = {
-    email: 'testymctestface@test.com',
-    username: 'testy',
-    password: 'mein passwort ist super',
-  };
+  let accessToken: string;
+  let appServer: Express.Application;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -20,8 +17,17 @@ describe('Fetch repo by name', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    appServer = app.getHttpServer();
+
     const jwtService = moduleFixture.get(JwtService);
-    console.log({ jwtService });
+
+    accessToken = jwtService.sign(
+      {
+        id: 1,
+      },
+      { expiresIn: '15m' },
+    );
+
     app.enableVersioning({
       type: VersioningType.URI,
     });
@@ -46,9 +52,9 @@ describe('Fetch repo by name', () => {
   });
 
   test('An unauthenticated user cannot access the fetchRepoByName endpoint', async () => {
-    const res = await request(app.getHttpServer())
-      .get('/v1/repositories/thechinedu/revuehub-api')
-      .set('Cookie', ['accessToken=1;']);
+    const res = await request(appServer).get(
+      '/v1/repositories/thechinedu/revuehub-api',
+    );
     const { body, statusCode } = res;
 
     expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
@@ -56,7 +62,17 @@ describe('Fetch repo by name', () => {
     expect(body.message).toBe('You are not authorized to access this resource');
   });
 
-  // test('An authenticated user can access the fetchRepoByName endpoint', async () => {
-  //   await db.seed.run();
-  // });
+  test('An authenticated user can access the fetchRepoByName endpoint', async () => {
+    await db.seed.run();
+
+    const res = await request(appServer)
+      .get('/v1/repositories/thechinedu/revuehub-api')
+      .set('Cookie', [`accessToken=${accessToken}`]);
+
+    const { body, statusCode } = res;
+
+    expect(statusCode).toBe(HttpStatus.OK);
+    expect(body.status).toBe('success');
+    expect(body.data.name).toBe('thechinedu/revuehub-api');
+  });
 });
