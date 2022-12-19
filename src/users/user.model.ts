@@ -35,7 +35,7 @@ export class UserModel {
   }
 
   async find({ where, select }: FindUserArgs): Promise<UserEntity> {
-    return (await db('users').select(select).where(where))[0];
+    return db('users').select(select).where(where).first();
   }
 
   async findOrCreate({ email, ...rest }: CreateUserDto): Promise<UserEntity> {

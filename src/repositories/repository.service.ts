@@ -127,11 +127,11 @@ export class RepositoryService {
       select: ['id', 'path', 'type'],
     });
 
-    if (!repositoryContents) {
+    if (!repositoryContents.length) {
       throw new HttpException(
         {
           status: 'fail',
-          message: 'No repository with the given name was found',
+          message: 'No content found for the given repository',
         },
         HttpStatus.NOT_FOUND,
       );
@@ -145,7 +145,7 @@ export class RepositoryService {
       where: {
         name,
       },
-      select: ['id', 'name', 'description'],
+      select: ['id', 'name', 'description', 'default_branch'],
     });
 
     if (!repository) {

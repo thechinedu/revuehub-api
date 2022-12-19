@@ -16,7 +16,7 @@
     "start:test-server": "DOTENV_CONFIG_PATH=.env.test yarn start",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "jest": "DOTENV_CONFIG_PATH=.env.test node -r dotenv/config ./node_modules/.bin/jest",
-    "test": "yarn jest --forceExit",
+    "test": "yarn jest -i --forceExit",
     "test:watch": "yarn jest --watch",
     "test:cov": "yarn jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

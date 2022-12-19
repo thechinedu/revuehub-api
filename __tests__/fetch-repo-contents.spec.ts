@@ -6,7 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 
-describe('Fetch repo by name', () => {
+describe('Fetch repo contents', () => {
   let app: INestApplication;
   let accessToken: string;
   let appServer: Express.Application;
@@ -52,10 +52,8 @@ describe('Fetch repo by name', () => {
     memoryStoreClient.disconnect();
   });
 
-  test('An unauthenticated user cannot access the fetchRepoByName endpoint', async () => {
-    const res = await request(appServer).get(
-      '/v1/repositories/thechinedu/revuehub-api',
-    );
+  test('An unauthenticated user cannot access the fetchRepoContents endpoint', async () => {
+    const res = await request(appServer).get('/v1/repositories/1/contents');
     const { body, statusCode } = res;
 
     expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
@@ -65,31 +63,31 @@ describe('Fetch repo by name', () => {
 
   test('An authenticated user can access the fetchRepoByName endpoint', async () => {
     const res = await request(appServer)
-      .get('/v1/repositories/thechinedu/revuehub-api')
+      .get('/v1/repositories/1/contents')
       .set('Cookie', [`accessToken=${accessToken}`]);
 
     const { body, statusCode } = res;
 
     expect(statusCode).toBe(HttpStatus.OK);
     expect(body.status).toBe('success');
-    expect(body.data).toEqual({
-      id: 1,
-      name: 'thechinedu/revuehub-api',
-      default_branch: 'main',
-      description:
-        'Review Github repositories without the need for pull requests',
-    });
+    expect(body.data).toEqual([
+      {
+        id: 1,
+        path: 'src',
+        type: 'tree',
+      },
+    ]);
   });
 
-  test('A 404 is returned if the given repo name is non-existent', async () => {
+  test('A 404 is returned if the given repo id is non-existent', async () => {
     const res = await request(appServer)
-      .get('/v1/repositories/thechinedu/demo-repo')
+      .get('/v1/repositories/140/contents')
       .set('Cookie', [`accessToken=${accessToken}`]);
 
     const { body, statusCode } = res;
 
     expect(statusCode).toBe(HttpStatus.NOT_FOUND);
     expect(body.status).toBe('fail');
-    expect(body.message).toBe('No repository with the given name was found');
+    expect(body.message).toBe('No content found for the given repository');
   });
 });
