@@ -34,6 +34,6 @@ export class RepositoryBlobModel {
     where,
     select,
   }: FindArgs): Promise<RepositoryBlobEntity | undefined> {
-    return (await db('repository_blobs').select(select).where(where))[0];
+    return db('repository_blobs').select(select).where(where).first();
   }
 }

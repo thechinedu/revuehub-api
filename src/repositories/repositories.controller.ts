@@ -32,6 +32,7 @@ export class RepositoriesController {
     };
   }
 
+  // TODO!: Add runtime validation for path parameter
   @Post(':id/contents')
   @HttpCode(HttpStatus.NO_CONTENT)
   async AddRepoContents(
@@ -43,6 +44,10 @@ export class RepositoriesController {
 
   @Get('/:id/contents')
   async fetchRepoContents(@Param('id') id: string) {
+    if (!id.match(/^\d+$/gi)) {
+      return this.fetchRepoByName(id, 'contents');
+    }
+
     const data = await this.repositoryService.fetchRepoContents(+id);
 
     return {
@@ -81,7 +86,7 @@ export class RepositoriesController {
     };
   }
 
-  // TODO: add runtime validation for status value
+  // TODO!: add runtime validation for status value
   private fetchReposByStatus(userID: number, status?: 'active' | 'inactive') {
     const statusActions = {
       active: () => this.repositoryService.fetchActiveRepos(userID),

@@ -66,7 +66,7 @@ export class UserAuthTokenModel {
     where,
     select,
   }: FindUserAuthTokenArgs): Promise<UserAuthTokenEntity> {
-    return (await db('user_auth_tokens').select(select).where(where))[0];
+    return db('user_auth_tokens').select(select).where(where).first();
   }
 
   private async generateAuthToken(): Promise<string> {

@@ -35,8 +35,8 @@ describe('User signup', () => {
   afterAll(async () => {
     const memoryStoreClient = await memoryStore;
 
-    app.close();
     db.destroy();
+    app.close();
     memoryStoreClient.disconnect();
   });
 

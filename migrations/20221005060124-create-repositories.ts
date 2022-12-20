@@ -13,7 +13,7 @@ export async function up(knex: Knex): Promise<Knex.SchemaBuilder> {
     table.timestamp('last_synced');
     table.boolean('has_pulled_content').defaultTo(false);
 
-    table.foreign('user_id').references('users.id');
+    table.foreign('user_id').references('users.id').onDelete('CASCADE');
     table.unique(['user_id', 'name']);
   });
 }

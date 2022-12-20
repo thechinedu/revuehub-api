@@ -37,7 +37,7 @@ export class RepositoryContentModel {
     where,
     select,
   }: FindArgs): Promise<RepositoryContentEntity | undefined> {
-    return (await db('repository_contents').select(select).where(where))[0];
+    return db('repository_contents').select(select).where(where).first();
   }
 
   async bulkCreate(items: RepositoryContentsDto[]) {

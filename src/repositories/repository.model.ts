@@ -31,7 +31,7 @@ export class RepositoryModel {
     where,
     select,
   }: FindArgs): Promise<RepositoryEntity | undefined> {
-    return (await db('repositories').select(select).where(where))[0];
+    return db('repositories').select(select).where(where).first();
   }
 
   async findAll({ where, select }: FindArgs): Promise<RepositoryEntity[]> {
