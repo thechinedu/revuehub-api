@@ -5,7 +5,23 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { RepositoryModel } from './repository.model';
 import { RepositoryBlobModel } from './repository-blob.model';
-import { RepositoryContentModel } from './repository-content.model';
+import {
+  RepositoryContentEntity,
+  RepositoryContentModel,
+} from './repository-content.model';
+
+type RepositoryContentBlob = Pick<
+  RepositoryContentEntity,
+  'id' | 'path' | 'type'
+>;
+
+type RepositoryContentTree = RepositoryContentBlob & {
+  contents: (RepositoryContentBlob | RepositoryContentTree)[];
+};
+
+type RepositoryContentRes = {
+  [key: string]: RepositoryContentBlob | RepositoryContentTree;
+};
 
 const OAuthAccessTokenRevokedException = new HttpException(
   { status: 'fail', message: 'OAuth access token is no longer valid' },
@@ -137,7 +153,7 @@ export class RepositoryService {
       );
     }
 
-    return repositoryContents;
+    return Object.values(this.transformRepositoryContents(repositoryContents));
   }
 
   async fetchRepoByName(name: string) {
@@ -239,5 +255,83 @@ export class RepositoryService {
     } catch {
       throw OAuthAccessTokenRevokedException;
     }
+  }
+
+  private transformRepositoryContents(
+    repositoryContents: RepositoryContentEntity[],
+  ) {
+    const res: RepositoryContentRes = {};
+
+    repositoryContents.forEach(({ id, path, type }) => {
+      const segments = path.split('/');
+      const isRootLevelContent = segments.length === 1;
+
+      if (isRootLevelContent) {
+        res[path] = {
+          id,
+          path,
+          type,
+          contents: [],
+        };
+
+        return;
+      }
+
+      const rootLevelContent = res[segments[0]];
+
+      this.addNestedContent({
+        id,
+        path,
+        type,
+        contents: (rootLevelContent as RepositoryContentTree).contents,
+        segments,
+      });
+    });
+
+    return res;
+  }
+
+  private getDir(
+    contents: RepositoryContentTree['contents'],
+    segments: string[],
+    endSegment = 2,
+  ): RepositoryContentTree['contents'] | undefined {
+    const path = segments.slice(0, endSegment).join('/');
+    const content = contents.find((content) => content.path === path);
+
+    if (!content) return;
+
+    if (endSegment + 1 >= segments.length)
+      return (content as RepositoryContentTree).contents;
+
+    return this.getDir(
+      (content as RepositoryContentTree).contents,
+      segments,
+      endSegment + 1,
+    );
+  }
+
+  private addNestedContent({
+    id,
+    path,
+    type,
+    contents,
+    segments,
+  }: RepositoryContentTree & { segments: string[] }) {
+    const dir = this.getDir(contents, segments);
+    const res: RepositoryContentBlob | RepositoryContentTree = {
+      id,
+      path,
+      type,
+    };
+
+    if (type === 'tree') (res as RepositoryContentTree).contents = [];
+
+    if (!dir) {
+      contents.push(res);
+      return;
+    }
+
+    dir.push(res);
   }
 }
