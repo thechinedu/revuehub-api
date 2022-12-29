@@ -35,7 +35,10 @@ export class RepositoryModel {
   }
 
   async findAll({ where, select }: FindArgs): Promise<RepositoryEntity[]> {
-    return db('repositories').select(select).where(where);
+    return db('repositories')
+      .select(select)
+      .where(where)
+      .orderBy('last_synced', 'desc');
   }
   // TODO: Fix any
   async bulkCreate(items: CreateRepositoryDto[]) {

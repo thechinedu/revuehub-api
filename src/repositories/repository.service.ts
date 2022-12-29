@@ -271,8 +271,11 @@ export class RepositoryService {
           id,
           path,
           type,
-          contents: [],
         };
+
+        if (type === 'tree') {
+          (res[path] as RepositoryContentTree).contents = [];
+        }
 
         return;
       }

@@ -50,9 +50,12 @@ export class RepositoryContentModel {
 
       const { repository_id: id } = items[0];
 
-      await trx('repositories').where({ id }).update({
-        has_pulled_content: true,
-      });
+      await trx('repositories')
+        .where({ id })
+        .update({
+          has_pulled_content: true,
+          last_synced: new Date(Date.now()),
+        });
     });
   }
 }
