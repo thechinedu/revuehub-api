@@ -1,5 +1,6 @@
 import { RequestWithUserID } from '@/types';
 import {
+  ClassSerializerInterceptor,
   Controller,
   Get,
   HttpCode,
@@ -9,9 +10,11 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import { AuthGuard } from '../guards/auth';
+import { RepositoryBlobFileSerializer } from './repository-blob-file.serializer';
 import { RepositoryService } from './repository.service';
 
 @Controller({ path: 'repositories', version: '1' })
@@ -32,7 +35,7 @@ export class RepositoriesController {
     };
   }
 
-  // TODO!: Add runtime validation for path parameter
+  // TODO: Add runtime validation for path parameter
   @Post(':id/contents')
   @HttpCode(HttpStatus.NO_CONTENT)
   async AddRepoContents(
@@ -71,14 +74,16 @@ export class RepositoriesController {
   }
 
   @Get('/:repository_id/contents/:content_id')
+  @UseInterceptors(ClassSerializerInterceptor)
   async fetchRepoBlobFile(
     @Req() req: RequestWithUserID,
     @Param('content_id') contentID: string,
   ) {
-    const data = await this.repositoryService.fetchRepoBlobFileContents(
+    const blobFile = await this.repositoryService.fetchRepoBlobFileContents(
       req.userID,
       +contentID,
     );
+    const data = new RepositoryBlobFileSerializer(blobFile);
 
     return {
       status: 'success',
@@ -86,7 +91,7 @@ export class RepositoriesController {
     };
   }
 
-  // TODO!: add runtime validation for status value
+  // TODO: add runtime validation for status value
   private fetchReposByStatus(userID: number, status?: 'active' | 'inactive') {
     const statusActions = {
       active: () => this.repositoryService.fetchActiveRepos(userID),
