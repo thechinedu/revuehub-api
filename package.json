@@ -32,7 +32,7 @@
     "seed:run": "yarn knex seed:run"
   },
   "dependencies": {
-    "@nestjs/common": "^9.1.6",
+    "@nestjs/common": "^9.2.1",
     "@nestjs/core": "^9.1.4",
     "@nestjs/jwt": "^9.0.0",
     "@nestjs/platform-express": "^9.2.1",
