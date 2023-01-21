@@ -43,7 +43,7 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.3",
     "joi": "^17.7.0",
-    "knex": "^2.3.0",
+    "knex": "^2.4.1",
     "pg": "^8.8.0",
     "redis": "^4.5.1",
     "reflect-metadata": "^0.1.13",
