@@ -14,13 +14,13 @@ import {
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
+import { Response } from 'express';
 
 import { CreateUserDto } from './dto/create-user-dto';
 import { UserSerializer } from './user.serializer';
 import { UserService } from './user.service';
 import { createUserValidator } from './validators/create-user.validator';
 import { createOAuthUserValidator } from './validators/create-oauth-user.validator';
-import { Response } from 'express';
 
 @Controller({
   path: 'users',
