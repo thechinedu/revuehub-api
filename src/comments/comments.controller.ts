@@ -1,5 +1,7 @@
 import { AuthGuard } from '@/src/guards/auth';
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+
+import { CreateCommentDto } from './dto/create-comment-dto';
 
 @Controller({
   path: 'comments',
@@ -8,7 +10,8 @@ import { Controller, Post, UseGuards } from '@nestjs/common';
 @UseGuards(AuthGuard)
 export class CommentsController {
   @Post()
-  createComment() {
+  createComment(@Body() createCommentDto: CreateCommentDto) {
+    console.log({ createCommentDto });
     return 'comment created';
   }
 }
