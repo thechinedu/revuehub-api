@@ -1,10 +1,7 @@
 import { db } from '@/db';
 import { Validator } from '@/src/pipes/validation';
-import Joi, {
-  CustomValidator,
-  ExternalValidationFunction,
-  ValidationErrorItem,
-} from 'joi';
+import { dtoValidationErrorMessageSerializer } from '@/utils';
+import Joi, { CustomValidator, ExternalValidationFunction } from 'joi';
 import zxcvbn from 'zxcvbn';
 
 import { CreateUserDto } from '../dto/create-user-dto';
@@ -60,8 +57,6 @@ export const schema: Joi.ObjectSchema<CreateUserDto> = object.keys({
   password: string.min(8).required().custom(validatePasswordStrength),
 });
 
-// TODO: move validation messages into their own directory and reuse across application
-
 const emailValidationMessages = {
   'string.email': { email: 'The provided email address is not valid' },
   'string.empty': { email: 'Email address cannot be empty' },
@@ -88,6 +83,12 @@ const passwordValidationMessages = {
   },
 };
 
+const messages = {
+  email: emailValidationMessages,
+  username: usernameValidationMessages,
+  password: passwordValidationMessages,
+};
+
 const beforeValidate = (createUserDto: CreateUserDto) =>
   Promise.resolve({
     ...createUserDto,
@@ -98,29 +99,5 @@ const beforeValidate = (createUserDto: CreateUserDto) =>
 export const createUserValidator: Validator<CreateUserDto> = {
   schema,
   beforeValidate,
-  // TODO: Make this a reusable utility
-  serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => {
-    const actions = {
-      email: emailValidationMessages,
-      username: usernameValidationMessages,
-      password: passwordValidationMessages,
-    };
-    const acc = {};
-
-    errorDetails.forEach((details) => {
-      const { context, type } = details;
-      let messageRecord: Record<string, string> | ValidationErrorItem;
-
-      if (context?.key) {
-        const key = actions[context.key as keyof typeof actions];
-        messageRecord = key?.[type as keyof typeof key];
-      } else {
-        messageRecord = details;
-      }
-
-      Object.assign(acc, messageRecord);
-    });
-
-    return { data: acc };
-  },
+  serializeValidationMessages: dtoValidationErrorMessageSerializer(messages),
 };

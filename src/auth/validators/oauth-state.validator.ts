@@ -1,5 +1,6 @@
 import { OAuthProviders, Validator } from '@/types';
-import Joi, { CustomValidator, ValidationErrorItem } from 'joi';
+import { dtoValidationErrorMessageSerializer } from '@/utils';
+import Joi, { CustomValidator } from 'joi';
 
 import { CreateOAuthStateDto } from '../dto/create-oauth-state-dto';
 
@@ -28,29 +29,11 @@ const providerValidationMessages = {
   },
 };
 
+const messages = {
+  provider: providerValidationMessages,
+};
+
 export const oauthStateValidator: Validator<CreateOAuthStateDto> = {
   schema,
-  // TODO: Make this a reusable utility
-  serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => {
-    const actions = {
-      provider: providerValidationMessages,
-    };
-    const acc = {};
-
-    errorDetails.forEach((details) => {
-      const { context, type } = details;
-      let messageRecord: Record<string, string> | ValidationErrorItem;
-
-      if (context?.key) {
-        const key = actions[context.key as keyof typeof actions];
-        messageRecord = key?.[type as keyof typeof key];
-      } else {
-        messageRecord = details;
-      }
-
-      Object.assign(acc, messageRecord);
-    });
-
-    return { data: acc };
-  },
+  serializeValidationMessages: dtoValidationErrorMessageSerializer(messages),
 };

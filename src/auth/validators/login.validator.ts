@@ -1,7 +1,7 @@
 import { db } from '@/db';
-import { verifyPassword } from '@/utils';
+import { dtoValidationErrorMessageSerializer, verifyPassword } from '@/utils';
 import { Validator } from '@/types';
-import Joi, { ValidationErrorItem } from 'joi';
+import Joi from 'joi';
 
 import { UserCredentialsDto } from '../dto/user-credentials-dto';
 
@@ -11,8 +11,6 @@ export const schema: Joi.ObjectSchema<UserCredentialsDto> = object.keys({
   email: string.email().required(),
   password: string.required(),
 });
-
-// TODO: move validation messages into their own directory and reuse across application
 
 const emailValidationMessages = {
   'string.email': { email: 'The provided email address is not valid' },
@@ -25,6 +23,11 @@ const passwordValidationMessages = {
   'string.empty': { password: 'Password cannot be empty' },
   'any.required': { password: 'No password provided' },
   'string.base': { password: 'Password must be a string' },
+};
+
+const messages = {
+  email: emailValidationMessages,
+  password: passwordValidationMessages,
 };
 
 const beforeValidate = (userCredentialsDto: UserCredentialsDto) =>
@@ -62,27 +65,5 @@ export const loginValidator: Validator<UserCredentialsDto> = {
   schema,
   beforeValidate,
   afterValidate,
-  serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => {
-    const actions = {
-      email: emailValidationMessages,
-      password: passwordValidationMessages,
-    };
-    const acc = {};
-
-    errorDetails.forEach((details) => {
-      const { context, type } = details;
-      let messageRecord: Record<string, string> | ValidationErrorItem;
-
-      if (context?.key) {
-        const key = actions[context.key as keyof typeof actions];
-        messageRecord = key?.[type as keyof typeof key];
-      } else {
-        messageRecord = details;
-      }
-
-      Object.assign(acc, messageRecord);
-    });
-
-    return { data: acc };
-  },
+  serializeValidationMessages: dtoValidationErrorMessageSerializer(messages),
 };

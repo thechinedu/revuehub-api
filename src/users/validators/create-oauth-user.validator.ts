@@ -1,7 +1,8 @@
 import { memoryStore } from '@/db';
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { Validator } from '@/types';
-import Joi, { ExternalValidationFunction, ValidationErrorItem } from 'joi';
+import { dtoValidationErrorMessageSerializer } from '@/utils';
+import Joi, { ExternalValidationFunction } from 'joi';
 
 const { object, string } = Joi.types();
 
@@ -28,7 +29,6 @@ export const schema: Joi.ObjectSchema<CreateUserFromOAuthDto> = object.keys({
   code: string.required(),
 });
 
-// TODO: move validation messages into their own directory and reuse across application
 const codeValidationMessages = {
   'string.empty': { code: 'Code cannot be empty' },
   'any.required': { code: 'Code must be provided' },
@@ -39,30 +39,12 @@ const stateValidationMessages = {
   'any.required': { state: 'State must be provided' },
 };
 
+const messages = {
+  code: codeValidationMessages,
+  state: stateValidationMessages,
+};
+
 export const createOAuthUserValidator: Validator<CreateUserFromOAuthDto> = {
   schema,
-  // TODO: Make this a reusable utility
-  serializeValidationMessages: (errorDetails: ValidationErrorItem[]) => {
-    const actions = {
-      code: codeValidationMessages,
-      state: stateValidationMessages,
-    };
-    const acc = {};
-
-    errorDetails.forEach((details) => {
-      const { context, type } = details;
-      let messageRecord: Record<string, string> | ValidationErrorItem;
-
-      if (context?.key) {
-        const key = actions[context.key as keyof typeof actions];
-        messageRecord = key?.[type as keyof typeof key];
-      } else {
-        messageRecord = details;
-      }
-
-      Object.assign(acc, messageRecord);
-    });
-
-    return { data: acc };
-  },
+  serializeValidationMessages: dtoValidationErrorMessageSerializer(messages),
 };
