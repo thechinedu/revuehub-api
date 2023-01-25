@@ -13,6 +13,7 @@ export async function up(knex: Knex): Promise<void> {
       .enum('status', ['PENDING', 'PUBLISHED', 'RESOLVED'])
       .defaultTo('PENDING');
     table.timestamps(false, true);
+    table.enum('level', ['LINE', 'FILE', 'PROJECT']);
 
     table.foreign('user_id').references('users.id');
     table.foreign('repository_blob_id').references('repository_blobs.id');
