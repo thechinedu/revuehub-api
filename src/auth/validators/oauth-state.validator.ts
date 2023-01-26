@@ -21,7 +21,7 @@ export const schema: Joi.ObjectSchema<CreateOAuthStateDto> = object.keys({
 });
 
 const providerValidationMessages = {
-  'string.empty': { password: 'Provier cannot be empty' },
+  'string.empty': { password: 'Provider cannot be empty' },
   'any.required': { provider: 'No provider provided' },
   'string.base': { provider: 'Provider must be a string' },
   'any.invalid': {
