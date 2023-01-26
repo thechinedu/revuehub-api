@@ -22,7 +22,7 @@ export const dtoValidationErrorMessageSerializer =
 
       if (context?.key) {
         const key = messages[context.key];
-        messageRecord = key?.[type as keyof typeof key];
+        messageRecord = key?.[type];
       } else {
         messageRecord = details;
       }
