@@ -1,14 +1,4 @@
-enum CommentStatus {
-  PENDING = 'PENDING',
-  PUBLISHED = 'PUBLISHED',
-  RESOLVED = 'RESOLVED',
-}
-
-enum CommentLevel {
-  LINE = 'LINE',
-  FILE = 'FILE',
-  PROJECT = 'PROJECT',
-}
+import { CommentLevel, CommentStatus } from '@/types';
 
 export type CreateCommentDto = {
   user_id: number;

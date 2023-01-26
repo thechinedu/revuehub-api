@@ -71,3 +71,15 @@ export type Validator<T = any> = {
 };
 
 export type RequestWithUserID = Request & { userID: number };
+
+export enum CommentStatus {
+  PENDING = 'PENDING',
+  PUBLISHED = 'PUBLISHED',
+  RESOLVED = 'RESOLVED',
+}
+
+export enum CommentLevel {
+  LINE = 'LINE',
+  FILE = 'FILE',
+  PROJECT = 'PROJECT',
+}
