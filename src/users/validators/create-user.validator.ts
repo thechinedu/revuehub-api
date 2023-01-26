@@ -48,7 +48,7 @@ const validatePasswordStrength: CustomValidator<string> = (value, helpers) => {
   return value;
 };
 
-export const schema: Joi.ObjectSchema<CreateUserDto> = object.keys({
+const schema: Joi.ObjectSchema<CreateUserDto> = object.keys({
   email: string.email().required().external(validateUniqueness('email')),
   username: string
     .pattern(/^[a-z0-9](\-?[a-z0-9])*$/)

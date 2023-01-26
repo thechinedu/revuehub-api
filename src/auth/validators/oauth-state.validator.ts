@@ -16,7 +16,7 @@ const validateProviderValue: CustomValidator<string> = (value, helpers) => {
   return value;
 };
 
-export const schema: Joi.ObjectSchema<CreateOAuthStateDto> = object.keys({
+const schema: Joi.ObjectSchema<CreateOAuthStateDto> = object.keys({
   provider: string.required().custom(validateProviderValue),
 });
 

@@ -24,7 +24,7 @@ const validateStateValue: ExternalValidationFunction = async (
   return value;
 };
 
-export const schema: Joi.ObjectSchema<CreateUserFromOAuthDto> = object.keys({
+const schema: Joi.ObjectSchema<CreateUserFromOAuthDto> = object.keys({
   state: string.required().external(validateStateValue),
   code: string.required(),
 });

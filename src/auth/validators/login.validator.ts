@@ -7,7 +7,7 @@ import { UserCredentialsDto } from '../dto/user-credentials-dto';
 
 const { object, string } = Joi.types();
 
-export const schema: Joi.ObjectSchema<UserCredentialsDto> = object.keys({
+const schema: Joi.ObjectSchema<UserCredentialsDto> = object.keys({
   email: string.email().required(),
   password: string.required(),
 });
