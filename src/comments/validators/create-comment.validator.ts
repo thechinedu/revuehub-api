@@ -9,7 +9,7 @@ import { CreateCommentDto } from '../dto/create-comment-dto';
 
 const { number, object, string } = Joi.types();
 
-const isSupportedValue: (values: string[]) => CustomValidator<string> =
+export const isSupportedValue: (values: string[]) => CustomValidator<string> =
   (supportedValues: string[]) => (value, helpers) => {
     if (!supportedValues.includes(value)) {
       return helpers.error('any.invalid');
@@ -49,7 +49,7 @@ const messages = {
     label: 'Status',
     overrides: {
       'any.invalid': {
-        level: `Status is not valid. Status must be one of [${Object.values(
+        status: `Status is not valid. Status must be one of [${Object.values(
           CommentStatus,
         )}]`,
       },

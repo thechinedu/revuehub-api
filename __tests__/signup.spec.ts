@@ -68,7 +68,7 @@ describe('User signup', () => {
           message: 'Email address cannot be empty',
         },
         {
-          message: `${requestBody.email} is not available`,
+          message: `The provided email address is not available`,
           overrideField: 'username',
           overrideValue: 'testy-testy',
         },
@@ -82,7 +82,7 @@ describe('User signup', () => {
           message: 'Username cannot be empty',
         },
         {
-          message: `${requestBody.username} is not available`,
+          message: `The provided username is not available`,
           overrideField: 'email',
           overrideValue: 'testymctestface2@test.com',
         },
