@@ -1,5 +1,9 @@
 import { db } from '@/db';
-import { dtoValidationErrorMessageSerializer, verifyPassword } from '@/utils';
+import {
+  dtoValidationErrorMessageSerializer,
+  generateValidationMessages,
+  verifyPassword,
+} from '@/utils';
 import { Validator } from '@/types';
 import Joi from 'joi';
 
@@ -12,22 +16,20 @@ const schema: Joi.ObjectSchema<UserCredentialsDto> = object.keys({
   password: string.required(),
 });
 
-const emailValidationMessages = {
-  'string.email': { email: 'The provided email address is not valid' },
-  'string.empty': { email: 'Email address cannot be empty' },
-  'any.required': { email: 'No email address provided' },
-};
-
-const passwordValidationMessages = {
-  'string.min': { password: 'Password should be a minimum of 8 characters' },
-  'string.empty': { password: 'Password cannot be empty' },
-  'any.required': { password: 'No password provided' },
-  'string.base': { password: 'Password must be a string' },
-};
-
 const messages = {
-  email: emailValidationMessages,
-  password: passwordValidationMessages,
+  email: generateValidationMessages({ field: 'email', label: 'Email address' }),
+  password: generateValidationMessages({
+    field: 'password',
+    label: 'Password',
+  }),
+  message: generateValidationMessages({
+    field: 'message',
+    overrides: {
+      'any.custom-error': {
+        message: 'Email or password is invalid',
+      },
+    },
+  }),
 };
 
 const beforeValidate = (userCredentialsDto: UserCredentialsDto) =>
@@ -47,10 +49,18 @@ const afterValidate = async (userCredentialsDto: UserCredentialsDto) => {
     !user ||
     !(await verifyPassword(user.password_digest, userCredentialsDto.password))
   ) {
-    // TODO: Replace with custom error
     throw new Joi.ValidationError(
       'Invalid credentials',
-      [{ message: `Email or Password is invalid`, path: [], type: '' }],
+      [
+        {
+          message: '',
+          path: [],
+          type: 'any.custom-error',
+          context: {
+            key: 'message',
+          },
+        },
+      ],
       () => null,
     );
   }

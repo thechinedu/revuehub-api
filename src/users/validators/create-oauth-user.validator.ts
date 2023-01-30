@@ -1,7 +1,10 @@
 import { memoryStore } from '@/db';
 import { CreateUserFromOAuthDto } from '@/src/auth/dto/create-user-from-oauth-dto';
 import { Validator } from '@/types';
-import { dtoValidationErrorMessageSerializer } from '@/utils';
+import {
+  dtoValidationErrorMessageSerializer,
+  generateValidationMessages,
+} from '@/utils';
 import Joi, { ExternalValidationFunction } from 'joi';
 
 const { object, string } = Joi.types();
@@ -13,10 +16,18 @@ const validateStateValue: ExternalValidationFunction = async (
   const isStateValid = Boolean(await memoryStoreClient.exists(value));
 
   if (!isStateValid) {
-    // TODO: Replace with custom error
     throw new Joi.ValidationError(
       'Invalid state',
-      [{ message: `State is not valid`, path: [], type: '' }],
+      [
+        {
+          message: '',
+          path: [],
+          type: 'any.invalid-state',
+          context: {
+            key: 'state',
+          },
+        },
+      ],
       () => null,
     );
   }
@@ -29,19 +40,17 @@ const schema: Joi.ObjectSchema<CreateUserFromOAuthDto> = object.keys({
   code: string.required(),
 });
 
-const codeValidationMessages = {
-  'string.empty': { code: 'Code cannot be empty' },
-  'any.required': { code: 'Code must be provided' },
-};
-
-const stateValidationMessages = {
-  'string.empty': { state: 'State cannot be empty' },
-  'any.required': { state: 'State must be provided' },
-};
-
 const messages = {
-  code: codeValidationMessages,
-  state: stateValidationMessages,
+  code: generateValidationMessages({ field: 'code', label: 'Code' }),
+  state: generateValidationMessages({
+    field: 'state',
+    label: 'State',
+    overrides: {
+      'any.invalid-state': {
+        state: 'State is not valid',
+      },
+    },
+  }),
 };
 
 export const createOAuthUserValidator: Validator<CreateUserFromOAuthDto> = {
