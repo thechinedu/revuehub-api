@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserAuthTokenModule } from '@/src/user-auth-tokens/user-auth-token.module';
 
 import { CommentsController } from './comments.controller';
+import { CommentService } from './comment.service';
 
 @Module({
   imports: [
@@ -10,5 +11,6 @@ import { CommentsController } from './comments.controller';
     UserAuthTokenModule,
   ],
   controllers: [CommentsController],
+  providers: [CommentService],
 })
 export class CommentsModule {}
