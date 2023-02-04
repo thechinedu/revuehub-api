@@ -776,15 +776,15 @@
     consola "^2.15.0"
     node-fetch "^2.6.1"
 
-"@octokit/auth-oauth-app@^5.0.4":
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/@octokit/auth-oauth-app/-/auth-oauth-app-5.0.4.tgz#ebd9a38f75381093d1a5e08e05b70b94f0918277"
-  integrity sha512-zlWuii5hAN50vsV6SJC+uIJ7SMhyWjQMEmKJQxkmNDlieE9LjnkZnbOjqRsfcG7VO7WTl4K8ccpo/3A7Kdpmrw==
+"@octokit/auth-oauth-app@^5.0.5":
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/@octokit/auth-oauth-app/-/auth-oauth-app-5.0.5.tgz#be2a93d72835133b4866ac4721aa628849475525"
+  integrity sha512-UPX1su6XpseaeLVCi78s9droxpGtBWIgz9XhXAx9VXabksoF0MyI5vaa1zo1njyYt6VaAjFisC2A2Wchcu2WmQ==
   dependencies:
     "@octokit/auth-oauth-device" "^4.0.0"
     "@octokit/auth-oauth-user" "^2.0.0"
     "@octokit/request" "^6.0.0"
-    "@octokit/types" "^8.0.0"
+    "@octokit/types" "^9.0.0"
     "@types/btoa-lite" "^1.0.0"
     btoa-lite "^1.0.0"
     universal-user-agent "^6.0.0"
@@ -846,6 +846,11 @@
   resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-14.0.0.tgz#949c5019028c93f189abbc2fb42f333290f7134a"
   integrity sha512-HNWisMYlR8VCnNurDU6os2ikx0s0VyEjDYHNS/h4cgb8DeOxQ0n72HyinUtdDVxJhFy3FWLGl0DJhfEWk3P5Iw==
 
+"@octokit/openapi-types@^16.0.0":
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-16.0.0.tgz#d92838a6cd9fb4639ca875ddb3437f1045cc625e"
+  integrity sha512-JbFWOqTJVLHZSUUoF4FzAZKYtqdxWu9Z5m2QQnOyEa04fOFljvyh7D3GYKbfuaSWisqehImiVIMG4eyJeP5VEA==
+
 "@octokit/request-error@^3.0.0":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@octokit/request-error/-/request-error-3.0.1.tgz#3fd747913c06ab2195e52004a521889dadb4b295"
@@ -880,6 +885,13 @@
   integrity sha512-65/TPpOJP1i3K4lBJMnWqPUJ6zuOtzhtagDvydAWbEXpbFYA0oMKKyLb95NFZZP0lSh/4b6K+DQlzvYQJQQePg==
   dependencies:
     "@octokit/openapi-types" "^14.0.0"
+
+"@octokit/types@^9.0.0":
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/@octokit/types/-/types-9.0.0.tgz#6050db04ddf4188ec92d60e4da1a2ce0633ff635"
+  integrity sha512-LUewfj94xCMH2rbD5YJ+6AQ4AVjFYTgpp6rboWM5T7N3IsIF65SBEOVcYMGAEzO/kKNiNaW4LoWtoThOhH06gw==
+  dependencies:
+    "@octokit/openapi-types" "^16.0.0"
 
 "@phc/format@^1.0.0":
   version "1.0.0"
