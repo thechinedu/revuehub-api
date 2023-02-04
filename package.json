@@ -36,7 +36,7 @@
     "@nestjs/core": "^9.2.1",
     "@nestjs/jwt": "^10.0.1",
     "@nestjs/platform-express": "^9.2.1",
-    "@octokit/auth-oauth-app": "^5.0.4",
+    "@octokit/auth-oauth-app": "^5.0.5",
     "@octokit/request": "^6.2.2",
     "argon2": "^0.30.2",
     "class-transformer": "^0.5.1",
