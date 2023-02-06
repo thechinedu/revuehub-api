@@ -20,11 +20,16 @@ export const dtoValidationErrorMessageSerializer =
       const { context, type } = details;
       let messageRecord: Record<string, string> | ValidationErrorItem;
 
-      if (context?.key) {
-        const key = messages[context.key];
-        messageRecord = key?.[type];
-      } else {
-        messageRecord = details;
+      const key = messages[context?.key as string];
+      messageRecord = key?.[type];
+
+      if (!messageRecord) {
+        messageRecord = {
+          [details.context?.key || 'message']: details.message.replace(
+            /["]/g,
+            '',
+          ),
+        };
       }
 
       Object.assign(acc, messageRecord);

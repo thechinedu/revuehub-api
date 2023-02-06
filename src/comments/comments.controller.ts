@@ -4,6 +4,7 @@ import { RequestWithUserID } from '@/types';
 import {
   Body,
   Controller,
+  Get,
   Post,
   Req,
   UseGuards,
@@ -27,5 +28,10 @@ export class CommentsController {
   ) {
     console.log({ createCommentDto });
     return 'comment created';
+  }
+
+  @Get()
+  getAllComments() {
+    return [];
   }
 }

@@ -19,10 +19,15 @@ export const isSupportedValue: (values: string[]) => CustomValidator<string> =
       const {
         state: { ancestors },
       } = helpers;
-      const { start_line: startLine, end_line: endLine } = ancestors?.[0];
+      const {
+        start_line: startLine,
+        end_line: endLine,
+        insertion_pos: insertionPos,
+      } = ancestors?.[0];
 
-      if (startLine == null || endLine == null)
-        return helpers.error('any.missing-line');
+      if ([startLine, endLine, insertionPos].includes(undefined)) {
+        return helpers.error('any.missing-lines');
+      }
 
       if (endLine < startLine) return helpers.error('any.invalid-lines');
     }
@@ -44,6 +49,7 @@ const schema: Joi.ObjectSchema<CreateCommentDto> = object.keys({
   level: string.required().custom(validateCommentLevel()),
   start_line: number.optional().greater(0),
   end_line: number.optional().greater(0),
+  insertion_pos: number.optional(),
 });
 
 const messages = {
@@ -88,9 +94,9 @@ const messages = {
           CommentLevel,
         )}]`,
       },
-      'any.missing-line': {
+      'any.missing-lines': {
         level:
-          "start_line and end_line must be provided when the comment level is set to 'LINE'",
+          "start_line, end_line and insertion_pos must be provided when the comment level is set to 'LINE'",
       },
       'any.invalid-lines': {
         level: 'start_line must be less than end_line',
