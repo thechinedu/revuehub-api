@@ -9,6 +9,7 @@ export async function up(knex: Knex): Promise<void> {
     table.text('content').notNullable();
     table.integer('start_line');
     table.integer('end_line');
+    table.integer('insertion_pos');
     table
       .enum('status', ['PENDING', 'PUBLISHED', 'RESOLVED'])
       .defaultTo('PENDING');
