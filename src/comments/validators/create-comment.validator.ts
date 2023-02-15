@@ -41,10 +41,25 @@ const validateCommentStatus = (): CustomValidator<string> =>
 const validateCommentLevel = (): CustomValidator<string> =>
   isSupportedValue(Object.values(CommentLevel));
 
+const validateContent: CustomValidator<string> = (value, helpers) => {
+  const {
+    state: { ancestors },
+  } = helpers;
+  const { level } = ancestors?.[0];
+
+  if (level !== CommentLevel.PROJECT && value.length === 0) {
+    return helpers.error('any.required');
+  }
+
+  return value;
+};
+
 const schema: Joi.ObjectSchema<CreateCommentDto> = object.keys({
   repository_blob_id: number.required().greater(0),
+  repository_content_id: number.required().greater(0),
+  repository_id: number.required().greater(0),
   parent_comment_id: number.optional().greater(0),
-  content: string.required(),
+  content: string.required().custom(validateContent),
   status: string.optional().custom(validateCommentStatus()),
   level: string.required().custom(validateCommentLevel()),
   start_line: number.optional().greater(0),
@@ -55,6 +70,12 @@ const schema: Joi.ObjectSchema<CreateCommentDto> = object.keys({
 const messages = {
   repository_blob_id: generateValidationMessages({
     field: 'repository_blob_id',
+  }),
+  repository_content_id: generateValidationMessages({
+    field: 'repository_content_id',
+  }),
+  repository_id: generateValidationMessages({
+    field: 'repository_id',
   }),
   parent_comment_id: generateValidationMessages({ field: 'parent_comment_id' }),
   content: generateValidationMessages({ field: 'content', label: 'Content' }),
@@ -99,7 +120,7 @@ const messages = {
           "start_line, end_line and insertion_pos must be provided when the comment level is set to 'LINE'",
       },
       'any.invalid-lines': {
-        level: 'start_line must be less than end_line',
+        level: 'start_line must be less than or equal to end_line',
       },
     },
   }),

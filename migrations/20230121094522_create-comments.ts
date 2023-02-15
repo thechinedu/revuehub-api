@@ -5,6 +5,8 @@ export async function up(knex: Knex): Promise<void> {
     table.increments();
     table.integer('user_id').unsigned();
     table.integer('repository_blob_id').unsigned();
+    table.integer('repository_content_id').unsigned();
+    table.integer('repository_id').unsigned();
     table.integer('parent_comment_id').unsigned().nullable();
     table.text('content').notNullable();
     table.integer('start_line');
@@ -18,6 +20,8 @@ export async function up(knex: Knex): Promise<void> {
 
     table.foreign('user_id').references('users.id');
     table.foreign('repository_blob_id').references('repository_blobs.id');
+    table.foreign('repository_content_id').references('repository_contents.id');
+    table.foreign('repository_id').references('repositories.id');
     table.foreign('parent_comment_id').references('comments.id');
   });
 }

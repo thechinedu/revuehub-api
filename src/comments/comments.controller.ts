@@ -11,6 +11,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 
+import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment-dto';
 import { createCommentValidator } from './validators/create-comment.validator';
 
@@ -20,14 +21,18 @@ import { createCommentValidator } from './validators/create-comment.validator';
 })
 @UseGuards(AuthGuard)
 export class CommentsController {
+  constructor(private commentService: CommentService) {}
+
   @Post()
   @UsePipes(new ValidationPipe(createCommentValidator))
   createComment(
     @Req() req: RequestWithUserID,
     @Body() createCommentDto: CreateCommentDto,
   ) {
-    console.log({ createCommentDto });
-    return 'comment created';
+    this.commentService.createComment({
+      ...createCommentDto,
+      user_id: req.userID,
+    });
   }
 
   @Get()
