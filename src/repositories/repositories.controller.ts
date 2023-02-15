@@ -3,8 +3,6 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   Post,
   Query,
@@ -37,7 +35,6 @@ export class RepositoriesController {
 
   // TODO: Add runtime validation for path parameter
   @Post(':id/contents')
-  @HttpCode(HttpStatus.NO_CONTENT)
   async AddRepoContents(
     @Req() req: RequestWithUserID,
     @Param('id') id: string,
