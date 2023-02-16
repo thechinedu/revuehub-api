@@ -7,7 +7,7 @@ import Joi, { CustomValidator } from 'joi';
 
 import { CreateCommentDto } from '../dto/create-comment-dto';
 
-const { number, object, string } = Joi.types();
+const { any, number, object, string } = Joi.types();
 
 export const isSupportedValue: (values: string[]) => CustomValidator<string> =
   (supportedValues: string[]) => (value, helpers) => {
@@ -47,7 +47,11 @@ const validateContent: CustomValidator<string> = (value, helpers) => {
   } = helpers;
   const { level } = ancestors?.[0];
 
-  if (level !== CommentLevel.PROJECT && value.length === 0) {
+  if (typeof value !== 'string') {
+    return helpers.error('string.base');
+  }
+
+  if (level !== CommentLevel.PROJECT && value.trim().length === 0) {
     return helpers.error('any.required');
   }
 
@@ -59,7 +63,7 @@ const schema: Joi.ObjectSchema<CreateCommentDto> = object.keys({
   repository_content_id: number.required().greater(0),
   repository_id: number.required().greater(0),
   parent_comment_id: number.optional().greater(0),
-  content: string.required().custom(validateContent),
+  content: any.required().custom(validateContent),
   status: string.optional().custom(validateCommentStatus()),
   level: string.required().custom(validateCommentLevel()),
   start_line: number.optional().greater(0),
