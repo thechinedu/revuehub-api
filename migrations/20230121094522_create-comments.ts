@@ -8,6 +8,7 @@ export async function up(knex: Knex): Promise<void> {
     table.integer('repository_content_id').unsigned();
     table.integer('repository_id').unsigned();
     table.integer('parent_comment_id').unsigned().nullable();
+    table.integer('publish_id').unsigned().nullable();
     table.text('content').notNullable();
     table.integer('start_line');
     table.integer('end_line');

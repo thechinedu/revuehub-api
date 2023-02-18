@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { UserAuthTokenModule } from '@/src/user-auth-tokens/user-auth-token.module';
@@ -8,6 +9,9 @@ import { CommentService } from './comment.service';
 
 @Module({
   imports: [
+    BullModule.registerQueue({
+      name: 'comments',
+    }),
     JwtModule.register({ secret: process.env.APP_SECRET as string }),
     UserAuthTokenModule,
   ],
