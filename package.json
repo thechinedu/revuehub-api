@@ -65,7 +65,7 @@
     "@types/supertest": "^2.0.12",
     "@types/zxcvbn": "^4.4.1",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
-    "@typescript-eslint/parser": "^5.47.0",
+    "@typescript-eslint/parser": "^5.52.0",
     "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
