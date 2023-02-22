@@ -4,12 +4,15 @@ import { RequestWithUserID } from '@/types';
 import {
   Body,
   Controller,
+  ClassSerializerInterceptor,
   Get,
   Post,
   Req,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
+import { CommentSerializer } from './comment.serializer';
 
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment-dto';
@@ -25,14 +28,22 @@ export class CommentsController {
 
   @Post()
   @UsePipes(new ValidationPipe(createCommentValidator))
-  createComment(
+  @UseInterceptors(ClassSerializerInterceptor)
+  async createComment(
     @Req() req: RequestWithUserID,
     @Body() createCommentDto: CreateCommentDto,
   ) {
-    this.commentService.createComment({
-      ...createCommentDto,
-      user_id: req.userID,
-    });
+    return 'comment created';
+    // const commentEntity = await this.commentService.createComment({
+    //   ...createCommentDto,
+    //   user_id: req.userID,
+    // });
+    // const data = new CommentSerializer(commentEntity);
+
+    // return {
+    //   status: 'success',
+    //   data,
+    // };
   }
 
   @Get()

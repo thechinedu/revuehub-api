@@ -32,7 +32,7 @@ export class UsersController {
     private authService: AuthService,
     private userAuthTokenService: UserAuthTokenService,
   ) {}
-  // TODO: return 204. Client has no use for json response
+
   @Post()
   @UsePipes(new ValidationPipe(createUserValidator))
   @UseInterceptors(ClassSerializerInterceptor)
@@ -51,7 +51,6 @@ export class UsersController {
     };
   }
 
-  // TODO: return 204. Client has no use for json response
   @Post('/oauth/new')
   @UsePipes(new ValidationPipe(createOAuthUserValidator))
   @UseInterceptors(ClassSerializerInterceptor)
