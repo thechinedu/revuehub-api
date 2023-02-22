@@ -6,6 +6,7 @@ import { UserAuthTokenModule } from '@/src/user-auth-tokens/user-auth-token.modu
 import { CommentsController } from './comments.controller';
 import { CommentModel } from './comment.model';
 import { CommentService } from './comment.service';
+import { CommentProcessor } from './comments.processor';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { CommentService } from './comment.service';
     UserAuthTokenModule,
   ],
   controllers: [CommentsController],
-  providers: [CommentService, CommentModel],
+  providers: [CommentService, CommentModel, CommentProcessor],
 })
 export class CommentsModule {}

@@ -1,23 +1,21 @@
 import { db } from '@/db';
 import { CommentLevel, CommentStatus } from '@/types';
-import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
-import { Queue } from 'bull';
 
 import { CreateCommentDto } from './dto/create-comment-dto';
 
-type CommentEntity = {
+export type CommentEntity = {
   id: number;
   user_id: number;
   repository_blob_id: number;
   repository_content_id: number;
   repository_id: number;
-  parent_comment_id?: number;
-  publish_id?: number;
+  parent_comment_id: number | null;
+  review_summary_id: number;
   content: string;
-  start_line?: number;
-  end_line?: number;
-  insertion_pos?: number;
+  start_line: number | null;
+  end_line: number | null;
+  insertion_pos: number | null;
   status: CommentStatus;
   level: CommentLevel;
   created_at: Date;
@@ -26,30 +24,31 @@ type CommentEntity = {
 
 type CommentEntityKeys = keyof CommentEntity;
 
+type FindCommentArgs = {
+  where: Partial<CommentEntity>;
+  select: (CommentEntityKeys | '*')[];
+};
+
 @Injectable()
 export class CommentModel {
-  constructor(@InjectQueue('comments') private readonly commentQueue: Queue) {}
+  comments = db('comments');
 
-  async create(createCommentDto: CreateCommentDto): Promise<CommentEntity> {
-    const rows = await db('comments').insert(createCommentDto).returning('*');
-    const res = rows[0] as CommentEntity;
-
-    if (res.level === CommentLevel.PROJECT) {
-      await this.commentQueue.add({
-        user_id: res.user_id,
-        publish_id: res.id,
-      });
-    }
-
-    return res;
+  async create(
+    createCommentDto: Partial<CreateCommentDto>,
+  ): Promise<CommentEntity> {
+    return (await this.comments.insert(createCommentDto).returning('*'))[0];
   }
+
+  async find({ where, select }: FindCommentArgs): Promise<CommentEntity> {
+    return this.comments.select(select).where(where).first();
+  }
+
+  // async findOrCreate({ where, select }: FindCommentArgs): Promise<any> {
+  //   const comment = await this.find({
+  //     where,
+  //     select,
+  //   });
+
+  //   if (comment) return comment;
+  // }
 }
-
-// ES import, export
-// default
-//  export default
-// import <>
-
-// NodeJS, commonJS
-// require, exports
-// module.export =

@@ -35,11 +35,33 @@ export const isSupportedValue: (values: string[]) => CustomValidator<string> =
     return value;
   };
 
-const validateCommentStatus = (): CustomValidator<string> =>
-  isSupportedValue(Object.values(CommentStatus));
+const validateLevel: CustomValidator<string> = (value, helpers) => {
+  const {
+    state: { ancestors },
+  } = helpers;
+  const { level, repository_blob_id, repository_content_id, repository_id } =
+    ancestors?.[0];
 
-const validateCommentLevel = (): CustomValidator<string> =>
-  isSupportedValue(Object.values(CommentLevel));
+  if (
+    level === CommentLevel.LINE &&
+    (!repository_blob_id || !repository_content_id)
+  ) {
+    return helpers.error('any.invalid-line-comment');
+  }
+
+  if (level === CommentLevel.FILE && !repository_content_id) {
+    return helpers.error('any.invalid-file-comment');
+  }
+
+  if (
+    level === CommentLevel.PROJECT &&
+    (repository_blob_id || repository_content_id)
+  ) {
+    return helpers.error('any.invalid-project-comment');
+  }
+
+  return value;
+};
 
 const validateContent: CustomValidator<string> = (value, helpers) => {
   const {
@@ -59,13 +81,19 @@ const validateContent: CustomValidator<string> = (value, helpers) => {
 };
 
 const schema: Joi.ObjectSchema<CreateCommentDto> = object.keys({
-  repository_blob_id: number.required().greater(0),
-  repository_content_id: number.required().greater(0),
-  repository_id: number.required().greater(0),
-  parent_comment_id: number.optional().greater(0),
+  repository_blob_id: number.optional().positive().integer(),
+  repository_content_id: number.optional().positive().integer(),
+  repository_id: number.required().positive().integer(),
+  review_summary_id: number.optional().positive().integer(),
+  parent_comment_id: number.optional().positive().integer(),
   content: any.required().custom(validateContent),
-  status: string.optional().custom(validateCommentStatus()),
-  level: string.required().custom(validateCommentLevel()),
+  status: string
+    .optional()
+    .custom(isSupportedValue(Object.values(CommentStatus))),
+  level: string
+    .required()
+    .custom(isSupportedValue(Object.values(CommentLevel)))
+    .custom(validateLevel),
   start_line: number.optional().greater(0),
   end_line: number.optional().greater(0),
   insertion_pos: number.optional(),
