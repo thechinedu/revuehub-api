@@ -154,6 +154,18 @@ const messages = {
       'any.invalid-lines': {
         level: 'start_line must be less than or equal to end_line',
       },
+      'any.invalid-line-comment': {
+        level:
+          "repository_blob_id and repository_content_id must be specified when the comment level is 'LINE'",
+      },
+      'any.invalid-file-comment': {
+        level:
+          "repository_content_id must be specified when the comment level is 'FILE'",
+      },
+      'any.invalid-project-comment': {
+        level:
+          "repository_content_id and repository_blob_id must not be specified when the comment level is 'PROJECT'",
+      },
     },
   }),
 };

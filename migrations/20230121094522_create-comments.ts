@@ -6,9 +6,12 @@ export async function up(knex: Knex): Promise<void> {
     table.integer('user_id').unsigned().notNullable();
     table.integer('repository_blob_id').unsigned().nullable();
     table.integer('repository_content_id').unsigned().nullable();
-    table.integer('repository_id').unsigned().nullable();
+    table.integer('repository_id').unsigned().notNullable();
     table.integer('parent_comment_id').unsigned().nullable();
-    table.integer('review_summary_id').unsigned().notNullable();
+    table
+      .increments('review_summary_id', { primaryKey: false })
+      .unsigned()
+      .notNullable();
     table.text('content').notNullable();
     table.integer('start_line').nullable();
     table.integer('end_line').nullable();

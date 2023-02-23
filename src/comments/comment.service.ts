@@ -1,42 +1,44 @@
-import { CommentLevel, CommentStatus } from '@/types';
+import { CommentLevel } from '@/types';
+import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
-import { CommentModel } from './comment.model';
+import { Queue } from 'bull';
+import { CommentEntity, CommentModel } from './comment.model';
 
 import { CreateCommentDto } from './dto/create-comment-dto';
 
 @Injectable()
 export class CommentService {
-  constructor(private commentModel: CommentModel) {}
+  constructor(
+    @InjectQueue('comments') private readonly commentQueue: Queue,
+    private commentModel: CommentModel,
+  ) {}
 
-  async createComment(createCommentDto: CreateCommentDto) {
+  async createComment(
+    createCommentDto: CreateCommentDto,
+  ): Promise<CommentEntity> {
     if (createCommentDto.level === CommentLevel.PROJECT) {
-      createCommentDto.status = CommentStatus.PUBLISHED;
+      const reviewSummaryComment =
+        await this.commentModel.upsertProjectReviewComment(createCommentDto);
+
+      this.commentQueue.add('publish-review-comments', {
+        user_id: reviewSummaryComment.user_id,
+        review_summmary_id: reviewSummaryComment.review_summary_id,
+      });
+
+      return reviewSummaryComment;
     }
 
     if (!createCommentDto.review_summary_id) {
-      const reviewSummaryComment = await this.commentModel.find({
-        where: {
-          status: CommentStatus.PENDING,
-          level: CommentLevel.PROJECT,
-        },
-        select: ['review_summary_id'],
-      });
-
-      if (!reviewSummaryComment) {
-        await this.commentModel.create({
+      const reviewSummaryComment =
+        await this.commentModel.findOrCreateProjectReviewComment({
           user_id: createCommentDto.user_id,
-          content: '',
-          level: CommentLevel.PROJECT,
-          status: CommentStatus.PENDING,
-          repository_blob_id: createCommentDto.repository_blob_id,
-          repository_content_id: createCommentDto.repository_content_id,
           repository_id: createCommentDto.repository_id,
         });
-      }
+
+      createCommentDto.review_summary_id =
+        reviewSummaryComment.review_summary_id;
     }
 
-    const comment = await this.commentModel.create(createCommentDto);
-
-    return comment;
+    return this.commentModel.create(createCommentDto);
   }
 }

@@ -33,17 +33,16 @@ export class CommentsController {
     @Req() req: RequestWithUserID,
     @Body() createCommentDto: CreateCommentDto,
   ) {
-    return 'comment created';
-    // const commentEntity = await this.commentService.createComment({
-    //   ...createCommentDto,
-    //   user_id: req.userID,
-    // });
-    // const data = new CommentSerializer(commentEntity);
+    const commentEntity = await this.commentService.createComment({
+      ...createCommentDto,
+      user_id: req.userID,
+    });
+    const data = new CommentSerializer(commentEntity);
 
-    // return {
-    //   status: 'success',
-    //   data,
-    // };
+    return {
+      status: 'success',
+      data,
+    };
   }
 
   @Get()

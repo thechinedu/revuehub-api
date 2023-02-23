@@ -39,16 +39,60 @@ export class CommentModel {
     return (await this.comments.insert(createCommentDto).returning('*'))[0];
   }
 
-  async find({ where, select }: FindCommentArgs): Promise<CommentEntity> {
+  async find({
+    where,
+    select,
+  }: FindCommentArgs): Promise<CommentEntity | undefined> {
     return this.comments.select(select).where(where).first();
   }
 
-  // async findOrCreate({ where, select }: FindCommentArgs): Promise<any> {
-  //   const comment = await this.find({
-  //     where,
-  //     select,
-  //   });
+  async findOrCreateProjectReviewComment({
+    user_id,
+    repository_id,
+  }: Pick<
+    CreateCommentDto,
+    'user_id' | 'repository_id'
+  >): Promise<CommentEntity> {
+    const comment = await this.find({
+      where: {
+        level: CommentLevel.PROJECT,
+        status: CommentStatus.PENDING,
+        content: '',
+      },
+      select: ['review_summary_id'],
+    });
 
-  //   if (comment) return comment;
-  // }
+    if (comment) return comment;
+
+    return this.create({
+      content: '',
+      user_id,
+      level: CommentLevel.PROJECT,
+      status: CommentStatus.PENDING,
+      repository_id,
+    });
+  }
+
+  async upsertProjectReviewComment({
+    user_id,
+    repository_id,
+    content,
+  }: CreateCommentDto): Promise<CommentEntity> {
+    const comment = await this.findOrCreateProjectReviewComment({
+      user_id,
+      repository_id,
+    });
+
+    const updatedCommented = (
+      await this.comments
+        .where({ id: comment.id })
+        .update({
+          content,
+          status: CommentStatus.PUBLISHED,
+        })
+        .returning('*')
+    )[0];
+
+    return updatedCommented;
+  }
 }
