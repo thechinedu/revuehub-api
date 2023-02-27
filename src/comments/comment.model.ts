@@ -36,14 +36,14 @@ export class CommentModel {
   async create(
     createCommentDto: Partial<CreateCommentDto>,
   ): Promise<CommentEntity> {
-    return (await this.comments.insert(createCommentDto).returning('*'))[0];
+    return (await db('comments').insert(createCommentDto).returning('*'))[0];
   }
 
   async find({
     where,
     select,
   }: FindCommentArgs): Promise<CommentEntity | undefined> {
-    return this.comments.select(select).where(where).first();
+    return db('comments').where(where).select(select).first();
   }
 
   async findOrCreateProjectReviewComment({
@@ -55,6 +55,8 @@ export class CommentModel {
   >): Promise<CommentEntity> {
     const comment = await this.find({
       where: {
+        user_id,
+        repository_id,
         level: CommentLevel.PROJECT,
         status: CommentStatus.PENDING,
         content: '',
@@ -83,8 +85,8 @@ export class CommentModel {
       repository_id,
     });
 
-    const updatedCommented = (
-      await this.comments
+    const updatedComment = (
+      await db('comments')
         .where({ id: comment.id })
         .update({
           content,
@@ -93,6 +95,6 @@ export class CommentModel {
         .returning('*')
     )[0];
 
-    return updatedCommented;
+    return updatedComment;
   }
 }
