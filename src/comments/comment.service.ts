@@ -2,14 +2,15 @@ import { CommentLevel } from '@/types';
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
-import { CommentEntity, CommentModel } from './comment.model';
 
+import { CommentEntity, CommentModel } from './comment.model';
+import { CommentQueueName, CommentQueueJobs } from './comments.processor';
 import { CreateCommentDto } from './dto/create-comment-dto';
 
 @Injectable()
 export class CommentService {
   constructor(
-    @InjectQueue('comments') private readonly commentQueue: Queue,
+    @InjectQueue(CommentQueueName) private readonly commentQueue: Queue,
     private commentModel: CommentModel,
   ) {}
 
@@ -20,9 +21,9 @@ export class CommentService {
       const reviewSummaryComment =
         await this.commentModel.upsertProjectReviewComment(createCommentDto);
 
-      this.commentQueue.add('publish-review-comments', {
+      this.commentQueue.add(CommentQueueJobs.PUBLISH_REVIEW_COMMENTS, {
         user_id: reviewSummaryComment.user_id,
-        review_summmary_id: reviewSummaryComment.review_summary_id,
+        review_summary_id: reviewSummaryComment.review_summary_id,
       });
 
       return reviewSummaryComment;

@@ -6,12 +6,12 @@ import { UserAuthTokenModule } from '@/src/user-auth-tokens/user-auth-token.modu
 import { CommentsController } from './comments.controller';
 import { CommentModel } from './comment.model';
 import { CommentService } from './comment.service';
-import { CommentProcessor } from './comments.processor';
+import { CommentProcessor, CommentQueueName } from './comments.processor';
 
 @Module({
   imports: [
     BullModule.registerQueue({
-      name: 'comments',
+      name: CommentQueueName,
     }),
     JwtModule.register({ secret: process.env.APP_SECRET as string }),
     UserAuthTokenModule,
