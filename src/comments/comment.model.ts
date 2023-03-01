@@ -61,7 +61,7 @@ export class CommentModel {
         status: CommentStatus.PENDING,
         content: '',
       },
-      select: ['review_summary_id'],
+      select: ['id', 'review_summary_id'],
     });
 
     if (comment) return comment;

@@ -39,8 +39,7 @@ const validateLevel: CustomValidator<string> = (value, helpers) => {
   const {
     state: { ancestors },
   } = helpers;
-  const { level, repository_blob_id, repository_content_id, repository_id } =
-    ancestors?.[0];
+  const { level, repository_blob_id, repository_content_id } = ancestors?.[0];
 
   if (
     level === CommentLevel.LINE &&
@@ -51,13 +50,6 @@ const validateLevel: CustomValidator<string> = (value, helpers) => {
 
   if (level === CommentLevel.FILE && !repository_content_id) {
     return helpers.error('any.invalid-file-comment');
-  }
-
-  if (
-    level === CommentLevel.PROJECT &&
-    (repository_blob_id || repository_content_id)
-  ) {
-    return helpers.error('any.invalid-project-comment');
   }
 
   return value;
@@ -161,10 +153,6 @@ const messages = {
       'any.invalid-file-comment': {
         level:
           "repository_content_id must be specified when the comment level is 'FILE'",
-      },
-      'any.invalid-project-comment': {
-        level:
-          "repository_content_id and repository_blob_id must not be specified when the comment level is 'PROJECT'",
       },
     },
   }),
