@@ -17,6 +17,7 @@ export class CommentService {
   async createComment(
     createCommentDto: CreateCommentDto,
   ): Promise<CommentEntity> {
+    console.log({ createCommentDto });
     if (createCommentDto.level === CommentLevel.PROJECT) {
       const reviewSummaryComment =
         await this.commentModel.upsertProjectReviewComment(createCommentDto);
