@@ -2,7 +2,7 @@ import { db } from '@/db';
 import { BATCH_INSERT_CHUNK_SIZE } from '@/utils/oauth';
 import { Injectable } from '@nestjs/common';
 
-import { RepositoryContentsDto } from './dto/repository-contents-dto';
+import { CreateRepositoryContentsDto } from './dto/create-repository-contents-dto';
 
 export type RepositoryContentEntity = {
   id: number;
@@ -40,7 +40,7 @@ export class RepositoryContentModel {
     return db('repository_contents').select(select).where(where).first();
   }
 
-  async bulkCreate(items: RepositoryContentsDto[]) {
+  async bulkCreate(items: CreateRepositoryContentsDto[]) {
     return db.transaction(async (trx) => {
       await trx.batchInsert(
         'repository_contents',
