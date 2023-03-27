@@ -1,4 +1,4 @@
-import { RepositoryContentsDto } from '@/src/repositories/dto/repository-contents-dto';
+import { CreateRepositoryContentsDto } from '@/src/repositories/dto/create-repository-contents-dto';
 import { RepoContentsOptions } from '@/types';
 import { request } from '@octokit/request';
 
@@ -29,7 +29,7 @@ export const getRepoContents = async ({
           path,
           type,
           sha,
-        } as RepositoryContentsDto),
+        } as CreateRepositoryContentsDto),
     );
   } catch (err) {
     console.log(err); // TODO: Integrate with error monitoring service

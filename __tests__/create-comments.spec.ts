@@ -11,6 +11,25 @@ import { commentRequestBody } from './factories/comment';
 import { repositoryRequestBody } from './factories/repository';
 import { userRequestBody } from './factories/user';
 
+// function getRepositoryBlobDto(repository_content_id: number) {
+//   return {
+//     repository_content_id,
+//     content: 'aGVsbG8=',
+//   };
+// }
+
+// export async function seed(knex: Knex): Promise<void> {
+//   await knex('repository_blobs').del();
+//   const repositoryContent = await knex('repository_contents')
+//     .where({ type: 'blob' })
+//     .select(['id'])
+//     .first();
+
+//   await knex('repository_blobs').insert(
+//     getRepositoryBlobDto(repositoryContent.id),
+//   );
+// }
+
 const seedTestDb = async () => {
   const userRequest = userRequestBody.build();
   const { password, ...userRequestWithoutPassword } = userRequest;
@@ -23,13 +42,20 @@ const seedTestDb = async () => {
 
   const createRepositoryDto = repositoryRequestBody.build({ user_id: user.id });
 
-  await db('repositories').insert(createRepositoryDto);
+  const repository = (
+    await db('repositories').insert(createRepositoryDto).returning(['id'])
+  )[0];
+
+  return {
+    repositoryID: repository.id,
+  };
 };
 
 describe('Comment creation', () => {
   let accessToken: string;
   let app: INestApplication;
   let appServer: Express.Application;
+  let repositoryID: number;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -52,7 +78,9 @@ describe('Comment creation', () => {
 
   beforeEach(async () => {
     await db.migrate.latest();
-    await seedTestDb();
+    const metaData = await seedTestDb();
+
+    repositoryID = metaData.repositoryID;
   });
 
   afterEach(async () => {
@@ -76,20 +104,23 @@ describe('Comment creation', () => {
     expect(body.message).toBe('You are not authorized to access this resource');
   });
 
-  test.skip('smokey', async () => {
-    const requestBody = commentRequestBody.build({
-      start_line: 1,
-      end_line: 2,
+  describe('Authenticated user', () => {
+    test.skip('User can create line-level comment', async () => {
+      const requestBody = commentRequestBody.build({
+        repository_id: repositoryID,
+        start_line: 1,
+        end_line: 2,
+      });
+      const res = await request(appServer)
+        .post('/v1/comments')
+        .set('Cookie', [`accessToken=${accessToken}`])
+        .send(requestBody);
+
+      const { body, statusCode } = res;
+
+      console.log({ body });
+
+      expect(statusCode).toBe(HttpStatus.CREATED);
     });
-    const res = await request(appServer)
-      .post('/v1/comments')
-      .set('Cookie', [`accessToken=${accessToken}`])
-      .send(requestBody);
-
-    const { body, statusCode } = res;
-
-    console.log({ body });
-
-    expect(statusCode).toBe(HttpStatus.CREATED);
   });
 });
