@@ -1,4 +1,4 @@
-import { db, memoryStore } from '@/db';
+import { db } from '@/db';
 import { AppModule } from '@/src/app.module';
 import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -447,11 +447,8 @@ describe('Fetch repo contents', () => {
   });
 
   afterAll(async () => {
-    const memoryStoreClient = await memoryStore;
-
     db.destroy();
     app.close();
-    memoryStoreClient.disconnect();
   });
 
   test('An unauthenticated user cannot access the fetchRepoContents endpoint', async () => {
