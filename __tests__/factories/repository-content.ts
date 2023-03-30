@@ -2,7 +2,7 @@ import { CreateRepositoryContentsDto } from '@/src/repositories/dto/create-repos
 import { faker } from '@faker-js/faker';
 import { Factory } from 'fishery';
 
-export const repositoryRequestBody =
+export const repositoryContentRequestBody =
   Factory.define<CreateRepositoryContentsDto>(
     ({
       params: {
