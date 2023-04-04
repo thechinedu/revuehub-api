@@ -8,8 +8,6 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 
 import { commentRequestBody } from './factories/comment';
-import { repositoryBlobRequestBody } from './factories/repository-blob';
-import { repositoryContentRequestBody } from './factories/repository-content';
 import { repositoryRequestBody } from './factories/repository';
 import { userRequestBody } from './factories/user';
 import { CommentLevel, CommentStatus } from '@/types';
@@ -31,30 +29,8 @@ const seedTestDb = async () => {
     await db('repositories').insert(createRepositoryDto).returning(['id'])
   )[0];
 
-  const createRepositoryContentsDto = repositoryContentRequestBody.build({
-    repository_id: repository.id,
-  });
-
-  const repositoryContent = (
-    await db('repository_contents')
-      .insert(createRepositoryContentsDto)
-      .returning(['id'])
-  )[0];
-
-  const createRepositoryBlobDto = repositoryBlobRequestBody.build({
-    repository_content_id: repositoryContent.id,
-  });
-
-  const repositoryBlob = (
-    await db('repository_blobs')
-      .insert(createRepositoryBlobDto)
-      .returning(['id'])
-  )[0];
-
   return {
     repositoryID: repository.id,
-    repositoryContentID: repositoryContent.id,
-    repositoryBlobID: repositoryBlob.id,
   };
 };
 
@@ -63,8 +39,6 @@ describe('Comment creation', () => {
   let app: INestApplication;
   let appServer: Express.Application;
   let repositoryID: number;
-  let repositoryContentID: number;
-  let repositoryBlobID: number;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -90,8 +64,6 @@ describe('Comment creation', () => {
     const metaData = await seedTestDb();
 
     repositoryID = metaData.repositoryID;
-    repositoryContentID = metaData.repositoryContentID;
-    repositoryBlobID = metaData.repositoryBlobID;
   });
 
   afterEach(async () => {
@@ -116,8 +88,6 @@ describe('Comment creation', () => {
     test('An authenticated user can create comments', async () => {
       const requestBody = commentRequestBody.build({
         repository_id: repositoryID,
-        repository_content_id: repositoryContentID,
-        repository_blob_id: repositoryBlobID,
         content: 'Test comment',
       });
 
@@ -139,8 +109,8 @@ describe('Comment creation', () => {
         status: requestBody.status,
         user_id: 1,
         repository_id: repositoryID,
-        repository_content_id: repositoryContentID,
-        repository_blob_id: repositoryBlobID,
+        snippet: requestBody.snippet,
+        file_path: requestBody.file_path,
       });
     });
 
@@ -204,8 +174,8 @@ describe('Comment creation', () => {
       test('User can create line-level comment', async () => {
         const requestBody = commentRequestBody.build({
           repository_id: repositoryID,
-          repository_content_id: repositoryContentID,
-          repository_blob_id: repositoryBlobID,
+          file_path: 'test.txt',
+          snippet: 'Test snippet',
           start_line: 1,
           end_line: 2,
           content: 'Test comment',
@@ -223,8 +193,8 @@ describe('Comment creation', () => {
         expect(body.data).toMatchObject({
           id: expect.any(Number),
           repository_id: repositoryID,
-          repository_content_id: repositoryContentID,
-          repository_blob_id: repositoryBlobID,
+          file_path: 'test.txt',
+          snippet: 'Test snippet',
           start_line: 1,
           end_line: 2,
           content: 'Test comment',
@@ -319,7 +289,7 @@ describe('Comment creation', () => {
         });
       });
 
-      test.each(['repository_blob_id', 'repository_content_id'])(
+      test.each(['snippet', 'file_path'])(
         'Comment is not created if %s is not present',
         async (field) => {
           const requestBody = commentRequestBody.build(
@@ -339,88 +309,88 @@ describe('Comment creation', () => {
           expect(body.status).toBe('fail');
           expect(body.data).toMatchObject({
             level:
-              "repository_blob_id and repository_content_id must be specified when the comment level is 'LINE'",
+              "snippet and file_path must be specified when the comment level is 'LINE'",
           });
         },
       );
     });
 
-    describe.skip('File level comments', () => {
-      test('User can create file-level comment', async () => {
-        const requestBody = commentRequestBody.build(
-          {
-            repository_id: repositoryID,
-            repository_content_id: repositoryContentID,
-            content: 'Test comment',
-            level: CommentLevel.FILE,
-          },
-          { transient: { omit: ['repository_blob_id'] } },
-        );
+    // describe.skip('File level comments', () => {
+    //   test('User can create file-level comment', async () => {
+    //     const requestBody = commentRequestBody.build(
+    //       {
+    //         repository_id: repositoryID,
+    //         repository_content_id: repositoryContentID,
+    //         content: 'Test comment',
+    //         level: CommentLevel.FILE,
+    //       },
+    //       { transient: { omit: ['repository_blob_id'] } },
+    //     );
 
-        const res = await request(appServer)
-          .post('/v1/comments')
-          .set('Cookie', [`accessToken=${accessToken}`])
-          .send(requestBody);
+    //     const res = await request(appServer)
+    //       .post('/v1/comments')
+    //       .set('Cookie', [`accessToken=${accessToken}`])
+    //       .send(requestBody);
 
-        const { body, statusCode } = res;
+    //     const { body, statusCode } = res;
 
-        expect(statusCode).toBe(HttpStatus.CREATED);
-        expect(body.status).toBe('success');
-        expect(body.data).toMatchObject({
-          id: expect.any(Number),
-          repository_id: repositoryID,
-          repository_content_id: repositoryContentID,
-          repository_blob_id: repositoryBlobID,
-          content: 'Test comment',
-          status: CommentStatus.PENDING,
-        });
-      });
+    //     expect(statusCode).toBe(HttpStatus.CREATED);
+    //     expect(body.status).toBe('success');
+    //     expect(body.data).toMatchObject({
+    //       id: expect.any(Number),
+    //       repository_id: repositoryID,
+    //       repository_content_id: repositoryContentID,
+    //       repository_blob_id: repositoryBlobID,
+    //       content: 'Test comment',
+    //       status: CommentStatus.PENDING,
+    //     });
+    //   });
 
-      test('Comment is not created if content is not present', async () => {
-        const requestBody = commentRequestBody.build(
-          {
-            level: CommentLevel.FILE,
-          },
-          { transient: { omit: ['content'] } },
-        );
-        const res = await request(appServer)
-          .post('/v1/comments')
-          .set('Cookie', [`accessToken=${accessToken}`])
-          .send(requestBody);
+    //   test('Comment is not created if content is not present', async () => {
+    //     const requestBody = commentRequestBody.build(
+    //       {
+    //         level: CommentLevel.FILE,
+    //       },
+    //       { transient: { omit: ['content'] } },
+    //     );
+    //     const res = await request(appServer)
+    //       .post('/v1/comments')
+    //       .set('Cookie', [`accessToken=${accessToken}`])
+    //       .send(requestBody);
 
-        const { body, statusCode } = res;
+    //     const { body, statusCode } = res;
 
-        expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
-        expect(body.status).toBe('fail');
-        expect(body.data).toMatchObject({
-          content: 'No content provided',
-        });
-      });
+    //     expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    //     expect(body.status).toBe('fail');
+    //     expect(body.data).toMatchObject({
+    //       content: 'No content provided',
+    //     });
+    //   });
 
-      test.each(['repository_blob_id', 'repository_content_id'])(
-        'Comment is not created if %s is not present',
-        async (field) => {
-          const requestBody = commentRequestBody.build(
-            {
-              level: CommentLevel.FILE,
-            },
-            { transient: { omit: [field as keyof CreateCommentDto] } },
-          );
-          const res = await request(appServer)
-            .post('/v1/comments')
-            .set('Cookie', [`accessToken=${accessToken}`])
-            .send(requestBody);
+    //   test.each(['repository_blob_id', 'repository_content_id'])(
+    //     'Comment is not created if %s is not present',
+    //     async (field) => {
+    //       const requestBody = commentRequestBody.build(
+    //         {
+    //           level: CommentLevel.FILE,
+    //         },
+    //         { transient: { omit: [field as keyof CreateCommentDto] } },
+    //       );
+    //       const res = await request(appServer)
+    //         .post('/v1/comments')
+    //         .set('Cookie', [`accessToken=${accessToken}`])
+    //         .send(requestBody);
 
-          const { body, statusCode } = res;
+    //       const { body, statusCode } = res;
 
-          expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
-          expect(body.status).toBe('fail');
-          expect(body.data).toMatchObject({
-            level:
-              "repository_blob_id and repository_content_id must be specified when the comment level is 'FILE'",
-          });
-        },
-      );
-    });
+    //       expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+    //       expect(body.status).toBe('fail');
+    //       expect(body.data).toMatchObject({
+    //         level:
+    //           "repository_blob_id and repository_content_id must be specified when the comment level is 'FILE'",
+    //       });
+    //     },
+    //   );
+    // });
   });
 });

@@ -7,8 +7,8 @@ import { CreateCommentDto } from './dto/create-comment-dto';
 export type CommentEntity = {
   id: number;
   user_id: number;
-  repository_blob_id: number;
-  repository_content_id: number;
+  snippet: string;
+  file_path: string;
   repository_id: number;
   parent_comment_id: number | null;
   review_summary_id: number;
