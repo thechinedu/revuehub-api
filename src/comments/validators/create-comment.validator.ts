@@ -39,16 +39,13 @@ const validateLevel: CustomValidator<string> = (value, helpers) => {
   const {
     state: { ancestors },
   } = helpers;
-  const { level, repository_blob_id, repository_content_id } = ancestors?.[0];
+  const { level, snippet, file_path } = ancestors?.[0];
 
-  if (
-    level === CommentLevel.LINE &&
-    (!repository_blob_id || !repository_content_id)
-  ) {
+  if (level === CommentLevel.LINE && (!snippet || !file_path)) {
     return helpers.error('any.invalid-line-comment');
   }
 
-  if (level === CommentLevel.FILE && !repository_content_id) {
+  if (level === CommentLevel.FILE && !file_path) {
     return helpers.error('any.invalid-file-comment');
   }
 
@@ -73,8 +70,8 @@ const validateContent: CustomValidator<string> = (value, helpers) => {
 };
 
 const schema: Joi.ObjectSchema<CreateCommentDto> = object.keys({
-  repository_blob_id: number.optional().positive().integer(),
-  repository_content_id: number.optional().positive().integer(),
+  snippet: string.optional(),
+  file_path: string.optional(),
   repository_id: number.required().positive().integer(),
   review_summary_id: number.optional().positive().integer(),
   parent_comment_id: number.optional().positive().integer(),
@@ -92,11 +89,11 @@ const schema: Joi.ObjectSchema<CreateCommentDto> = object.keys({
 });
 
 const messages = {
-  repository_blob_id: generateValidationMessages({
-    field: 'repository_blob_id',
+  snippet: generateValidationMessages({
+    field: 'snippet',
   }),
-  repository_content_id: generateValidationMessages({
-    field: 'repository_content_id',
+  file_path: generateValidationMessages({
+    field: 'file_path',
   }),
   repository_id: generateValidationMessages({
     field: 'repository_id',
@@ -148,11 +145,10 @@ const messages = {
       },
       'any.invalid-line-comment': {
         level:
-          "repository_blob_id and repository_content_id must be specified when the comment level is 'LINE'",
+          "snippet and file_path must be specified when the comment level is 'LINE'",
       },
       'any.invalid-file-comment': {
-        level:
-          "repository_content_id must be specified when the comment level is 'FILE'",
+        level: "file_path must be specified when the comment level is 'FILE'",
       },
     },
   }),
