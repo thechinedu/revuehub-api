@@ -1,9 +1,10 @@
-import { db } from '@/db';
+import { db, memoryStore } from '@/db';
 import { AppModule } from '@/src/app.module';
 import { hashPassword } from '@/utils';
+import { BullModule } from '@nestjs/bull';
 import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 
@@ -12,6 +13,7 @@ import { repositoryRequestBody } from './factories/repository';
 import { userRequestBody } from './factories/user';
 import { CommentLevel, CommentStatus } from '@/types';
 import { CreateCommentDto } from '@/src/comments/dto/create-comment-dto';
+import { CommentQueueJobs } from '@/src/comments/comments.processor';
 
 const seedTestDb = async () => {
   const userRequest = userRequestBody.build();
@@ -36,13 +38,19 @@ const seedTestDb = async () => {
 
 describe('Comment creation', () => {
   let accessToken: string;
+  let moduleFixture: TestingModule;
   let app: INestApplication;
   let appServer: Express.Application;
   let repositoryID: number;
 
   beforeAll(async () => {
-    const moduleFixture = await Test.createTestingModule({
-      imports: [AppModule],
+    moduleFixture = await Test.createTestingModule({
+      imports: [
+        AppModule,
+        BullModule.forRoot({
+          redis: process.env.REDIS_URL,
+        }),
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -70,9 +78,13 @@ describe('Comment creation', () => {
     await db.migrate.rollback();
   });
 
-  afterAll(() => {
-    db.destroy();
-    app.close();
+  afterAll(async () => {
+    const memoryStoreClient = await memoryStore;
+
+    await memoryStoreClient.flushDb();
+    await memoryStoreClient.quit();
+    await db.destroy();
+    await app.close();
   });
 
   test('An unauthenticated user cannot access the create comments endpoint', async () => {
@@ -412,7 +424,7 @@ describe('Comment creation', () => {
       });
     });
 
-    describe.skip('Project level comments', () => {
+    describe('Project level comments', () => {
       test('User can create project-level comment', async () => {
         const requestBody = commentFactory.build({
           repository_id: repositoryID,
@@ -460,29 +472,51 @@ describe('Comment creation', () => {
         });
       });
 
-      test.skip('Pending comments are set to published when a project-level comment is created', async () => {
-        const pendingLineLevelComment = await commentFactory.build({
+      test('Pending comments are set to published when a project-level comment is created', async () => {
+        const lineLevelCommentRequestBody = commentFactory.build({
           repository_id: repositoryID,
           status: CommentStatus.PENDING,
           level: CommentLevel.LINE,
         });
 
-        const pendingFileLevelComment = await commentFactory.build({
+        const fileLevelCommentRequestBody = commentFactory.build({
           repository_id: repositoryID,
           status: CommentStatus.PENDING,
           level: CommentLevel.FILE,
         });
 
-        const requestBody = commentFactory.build({
+        const projectLevelCommentRequestBody = commentFactory.build({
           repository_id: repositoryID,
           content: 'Test comment',
           level: CommentLevel.PROJECT,
         });
 
+        const { body: lineLevelCommentResponseBody } = await request(appServer)
+          .post('/v1/comments')
+          .set('Cookie', [`accessToken=${accessToken}`])
+          .send(lineLevelCommentRequestBody);
+
+        expect(lineLevelCommentResponseBody.data).toMatchObject({
+          id: expect.any(Number),
+          status: CommentStatus.PENDING,
+          level: CommentLevel.LINE,
+        });
+
+        const { body: fileLevelCommentResponseBody } = await request(appServer)
+          .post('/v1/comments')
+          .set('Cookie', [`accessToken=${accessToken}`])
+          .send(fileLevelCommentRequestBody);
+
+        expect(fileLevelCommentResponseBody.data).toMatchObject({
+          id: expect.any(Number),
+          status: CommentStatus.PENDING,
+          level: CommentLevel.FILE,
+        });
+
         const res = await request(appServer)
           .post('/v1/comments')
           .set('Cookie', [`accessToken=${accessToken}`])
-          .send(requestBody);
+          .send(projectLevelCommentRequestBody);
 
         const { body, statusCode } = res;
 
@@ -495,15 +529,29 @@ describe('Comment creation', () => {
           snippet: null,
           content: 'Test comment',
           status: CommentStatus.PUBLISHED,
+          level: CommentLevel.PROJECT,
         });
 
-        // const updatedComment = await commentRepository.findOne(
-        //   pendingComment.id,
-        // );
+        const queue = moduleFixture.get('BullQueue_comments');
+        const job = await queue.add(CommentQueueJobs.PUBLISH_REVIEW_COMMENTS, {
+          user_id: body.data.user_id,
+          review_summary_id: body.data.review_summary_id,
+        });
+        await job.finished();
 
-        // expect(updatedComment).toMatchObject({
-        //   status: CommentStatus.PUBLISHED,
-        // });
+        expect(queue).toBeDefined();
+        expect(queue.name).toBe('comments');
+
+        const pendingComments = await db('comments')
+          .whereIn('id', [
+            lineLevelCommentResponseBody.data.id,
+            fileLevelCommentResponseBody.data.id,
+          ])
+          .select('status');
+
+        pendingComments.forEach((comment) => {
+          expect(comment.status).toBe(CommentStatus.PUBLISHED);
+        });
       });
     });
   });
