@@ -1,4 +1,5 @@
 import { AuthGuard } from '@/src/guards/auth';
+import { QueryParamsToObjectPipe } from '@/src/pipes/query-params-to-object';
 import { ValidationPipe } from '@/src/pipes/validation';
 import { RequestWithUserID } from '@/types';
 import {
@@ -11,12 +12,14 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
+  Query,
 } from '@nestjs/common';
 import { CommentSerializer } from './comment.serializer';
 
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment-dto';
 import { createCommentValidator } from './validators/create-comment.validator';
+import { getAllCommentsValidator } from './validators/get-all-comments.validator';
 
 @Controller({
   path: 'comments',
@@ -46,7 +49,14 @@ export class CommentsController {
   }
 
   @Get()
-  getAllComments() {
+  getAllComments(
+    @Query(
+      'repository_id',
+      new QueryParamsToObjectPipe('repository_id'),
+      new ValidationPipe(getAllCommentsValidator),
+    )
+    repositoryID: number,
+  ) {
     return [];
   }
 }

@@ -15,7 +15,7 @@ export type Validator<T = any> = {
 
 @Injectable()
 export class ValidationPipe implements PipeTransform {
-  constructor(private validator: Validator) {}
+  constructor(private readonly validator: Validator) {}
 
   async transform(value: unknown) {
     const { validator } = this;
