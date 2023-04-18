@@ -42,4 +42,13 @@ export class CommentService {
 
     return this.commentModel.create(createCommentDto);
   }
+
+  fetchAllComments(repositoryID: number) {
+    return this.commentModel.findAll({
+      where: {
+        repository_id: repositoryID,
+      },
+      select: ['*'],
+    });
+  }
 }
