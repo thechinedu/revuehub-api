@@ -1,9 +1,17 @@
 import { BullModule } from '@nestjs/bull';
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { UserAuthTokenModule } from '@/src/user-auth-tokens/user-auth-token.module';
 
-import { CommentsController } from './comments.controller';
+import {
+  CommentsController,
+  validateGetCommentsQueryParams,
+} from './comments.controller';
 import { CommentModel } from './comment.model';
 import { CommentService } from './comment.service';
 import { CommentProcessor, CommentQueueName } from './comments.processor';
@@ -19,4 +27,10 @@ import { CommentProcessor, CommentQueueName } from './comments.processor';
   controllers: [CommentsController],
   providers: [CommentService, CommentModel, CommentProcessor],
 })
-export class CommentsModule {}
+export class CommentsModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(validateGetCommentsQueryParams)
+      .forRoutes({ path: 'comments', method: RequestMethod.GET });
+  }
+}

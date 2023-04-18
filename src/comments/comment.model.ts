@@ -39,11 +39,13 @@ export class CommentModel {
     return (await db('comments').insert(createCommentDto).returning('*'))[0];
   }
 
-  async find({
-    where,
-    select,
-  }: FindCommentArgs): Promise<CommentEntity | undefined> {
+  find({ where, select }: FindCommentArgs): Promise<CommentEntity | undefined> {
     return db('comments').where(where).select(select).first();
+  }
+
+  findAll({ where, select }: FindCommentArgs): Promise<CommentEntity[]> {
+    console.log({ where, select });
+    return db('comments').where(where).select(select);
   }
 
   async findOrCreateProjectReviewComment({

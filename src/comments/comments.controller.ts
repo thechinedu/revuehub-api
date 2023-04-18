@@ -14,12 +14,26 @@ import {
   UsePipes,
   Query,
 } from '@nestjs/common';
+import { NextFunction, Response } from 'express';
 import { CommentSerializer } from './comment.serializer';
 
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment-dto';
 import { createCommentValidator } from './validators/create-comment.validator';
 import { getAllCommentsValidator } from './validators/get-all-comments.validator';
+
+export function validateGetCommentsQueryParams(
+  req: RequestWithUserID,
+  res: Response,
+  next: NextFunction,
+) {
+  console.log('middleware time');
+  const ret = new ValidationPipe(getAllCommentsValidator);
+  // if (await ret.transform(req.query)) {
+  //   next();
+  // }
+  next();
+}
 
 @Controller({
   path: 'comments',
@@ -48,15 +62,21 @@ export class CommentsController {
     };
   }
 
-  @Get()
-  getAllComments(
-    @Query(
+  /**
+   * @Query(
       'repository_id',
       new QueryParamsToObjectPipe('repository_id'),
       new ValidationPipe(getAllCommentsValidator),
     )
-    repositoryID: number,
-  ) {
+    { repository_id }: { repository_id: number },
+    @Query('file_path') { file_path }: { file_path: string },
+   * 
+   */
+
+  @Get()
+  getAllComments(@Req() request: RequestWithUserID) {
+    console.log(request.query);
+    // return this.commentService.fetchAllComments(repository_id);
     return [];
   }
 }
