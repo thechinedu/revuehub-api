@@ -1,7 +1,6 @@
 import { AuthGuard } from '@/src/guards/auth';
-import { QueryParamsToObjectPipe } from '@/src/pipes/query-params-to-object';
 import { ValidationPipe } from '@/src/pipes/validation';
-import { RequestWithUserID } from '@/types';
+import { CommentView, RequestWithUserID } from '@/types';
 import {
   Body,
   Controller,
@@ -12,9 +11,8 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  Query,
 } from '@nestjs/common';
-import { NextFunction, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { CommentSerializer } from './comment.serializer';
 
 import { CommentService } from './comment.service';
@@ -22,16 +20,13 @@ import { CreateCommentDto } from './dto/create-comment-dto';
 import { createCommentValidator } from './validators/create-comment.validator';
 import { getAllCommentsValidator } from './validators/get-all-comments.validator';
 
-export function validateGetCommentsQueryParams(
-  req: RequestWithUserID,
-  res: Response,
+export async function validateGetCommentsQueryParams(
+  req: Request,
+  _res: Response,
   next: NextFunction,
 ) {
-  console.log('middleware time');
-  const ret = new ValidationPipe(getAllCommentsValidator);
-  // if (await ret.transform(req.query)) {
-  //   next();
-  // }
+  await new ValidationPipe(getAllCommentsValidator).transform(req.query);
+
   next();
 }
 
@@ -62,21 +57,18 @@ export class CommentsController {
     };
   }
 
-  /**
-   * @Query(
-      'repository_id',
-      new QueryParamsToObjectPipe('repository_id'),
-      new ValidationPipe(getAllCommentsValidator),
-    )
-    { repository_id }: { repository_id: number },
-    @Query('file_path') { file_path }: { file_path: string },
-   * 
-   */
-
   @Get()
-  getAllComments(@Req() request: RequestWithUserID) {
-    console.log(request.query);
-    // return this.commentService.fetchAllComments(repository_id);
-    return [];
+  getAllComments(
+    @Req() { query: { repository_id, file_path, view } }: RequestWithUserID,
+  ) {
+    const repositoryID = +(repository_id as string);
+    const filePath = file_path as string;
+    const viewName = view as 'overview' | 'code';
+
+    return this.commentService.fetchAllComments(
+      repositoryID,
+      filePath,
+      viewName === 'overview' ? CommentView.OVERVIEW : CommentView.CODE,
+    );
   }
 }

@@ -1,4 +1,4 @@
-import { CommentLevel } from '@/types';
+import { CommentLevel, CommentView } from '@/types';
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
@@ -43,12 +43,26 @@ export class CommentService {
     return this.commentModel.create(createCommentDto);
   }
 
-  fetchAllComments(repositoryID: number) {
-    return this.commentModel.findAll({
-      where: {
-        repository_id: repositoryID,
+  fetchAllComments(repositoryID: number, filePath: string, view: CommentView) {
+    const views = {
+      [CommentView.OVERVIEW]: () => {
+        // noop
       },
-      select: ['*'],
-    });
+      [CommentView.CODE]: () => {
+        return this.commentModel.findAll({
+          where: {
+            repository_id: repositoryID,
+            file_path: filePath,
+          },
+          whereNot: {
+            level: CommentLevel.PROJECT,
+          },
+          orderBy: [{ column: 'insertion_pos', order: 'asc' }],
+          select: ['*'],
+        });
+      },
+    };
+
+    return views[view]();
   }
 }
