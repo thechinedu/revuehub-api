@@ -26,7 +26,12 @@ type CommentEntityKeys = keyof CommentEntity;
 
 type FindCommentArgs = {
   where: Partial<CommentEntity>;
+  whereNot?: Partial<CommentEntity>;
   select: (CommentEntityKeys | '*')[];
+  orderBy?: {
+    column: CommentEntityKeys;
+    order: 'asc' | 'desc';
+  }[];
 };
 
 @Injectable()
@@ -43,9 +48,17 @@ export class CommentModel {
     return db('comments').where(where).select(select).first();
   }
 
-  findAll({ where, select }: FindCommentArgs): Promise<CommentEntity[]> {
-    console.log({ where, select });
-    return db('comments').where(where).select(select);
+  findAll({
+    where,
+    whereNot = {},
+    orderBy = [],
+    select,
+  }: FindCommentArgs): Promise<CommentEntity[]> {
+    return db('comments')
+      .where(where)
+      .whereNot(whereNot)
+      .select(select)
+      .orderBy(orderBy);
   }
 
   async findOrCreateProjectReviewComment({

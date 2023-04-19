@@ -83,3 +83,8 @@ export enum CommentLevel {
   FILE = 'FILE',
   PROJECT = 'PROJECT',
 }
+
+export enum CommentView {
+  CODE = 'CODE',
+  OVERVIEW = 'OVERVIEW',
+}

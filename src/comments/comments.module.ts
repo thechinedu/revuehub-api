@@ -31,6 +31,6 @@ export class CommentsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(validateGetCommentsQueryParams)
-      .forRoutes({ path: 'comments', method: RequestMethod.GET });
+      .forRoutes({ path: 'v1/comments', method: RequestMethod.GET });
   }
 }

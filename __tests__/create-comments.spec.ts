@@ -88,7 +88,7 @@ describe('Comment creation', () => {
   });
 
   test('An unauthenticated user cannot access the create comments endpoint', async () => {
-    const res = await request(appServer).get('/v1/comments');
+    const res = await request(appServer).post('/v1/comments');
     const { body, statusCode } = res;
 
     expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
