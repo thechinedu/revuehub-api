@@ -1,6 +1,7 @@
 import { db } from '@/db';
 import { CommentLevel, CommentStatus } from '@/types';
 import { Injectable } from '@nestjs/common';
+import { UserEntity, UserEntityKeys } from '../users/user.model';
 
 import { CreateCommentDto } from './dto/create-comment-dto';
 
@@ -27,7 +28,7 @@ type CommentEntityKeys = keyof CommentEntity;
 type FindCommentArgs = {
   where: Partial<CommentEntity>;
   whereNot?: Partial<CommentEntity>;
-  select: (CommentEntityKeys | '*')[];
+  select: (CommentEntityKeys | UserEntityKeys)[];
   orderBy?: {
     column: CommentEntityKeys;
     order: 'asc' | 'desc';
@@ -44,6 +45,7 @@ export class CommentModel {
     return (await db('comments').insert(createCommentDto).returning('*'))[0];
   }
 
+  // TODO: Remove if this is not needed
   find({ where, select }: FindCommentArgs): Promise<CommentEntity | undefined> {
     return db('comments').where(where).select(select).first();
   }
@@ -53,11 +55,12 @@ export class CommentModel {
     whereNot = {},
     orderBy = [],
     select,
-  }: FindCommentArgs): Promise<CommentEntity[]> {
+  }: FindCommentArgs): Promise<(CommentEntity & UserEntity)[]> {
     return db('comments')
+      .join('users', 'users.id', 'comments.user_id')
       .where(where)
       .whereNot(whereNot)
-      .select(select)
+      .select([...select, 'comments.id', 'comments.created_at'])
       .orderBy(orderBy);
   }
 

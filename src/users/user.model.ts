@@ -17,7 +17,7 @@ export type UserEntity = {
   profile_image_url: string;
 };
 
-type UserEntityKeys = keyof UserEntity;
+export type UserEntityKeys = keyof UserEntity;
 
 type FindUserArgs = {
   where: Partial<UserEntity>;
