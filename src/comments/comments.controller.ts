@@ -13,8 +13,8 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
-import { CommentSerializer } from './comment.serializer';
 
+import { CommentSerializer } from './comment.serializer';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment-dto';
 import { createCommentValidator } from './validators/create-comment.validator';
@@ -58,17 +58,26 @@ export class CommentsController {
   }
 
   @Get()
-  getAllComments(
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getAllComments(
     @Req() { query: { repository_id, file_path, view } }: RequestWithUserID,
   ) {
     const repositoryID = +(repository_id as string);
     const filePath = file_path as string;
     const viewName = view as 'overview' | 'code';
+    const commentView =
+      viewName === 'overview' ? CommentView.OVERVIEW : CommentView.CODE;
 
-    return this.commentService.fetchAllComments(
+    const data = await this.commentService.fetchAllComments(
       repositoryID,
       filePath,
-      viewName === 'overview' ? CommentView.OVERVIEW : CommentView.CODE,
+      commentView,
     );
+    // const data = new CommentsSerializer(commentEntities).comments;
+
+    return {
+      status: 'success',
+      data,
+    };
   }
 }

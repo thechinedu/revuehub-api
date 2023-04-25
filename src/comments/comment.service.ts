@@ -46,7 +46,12 @@ export class CommentService {
   fetchAllComments(repositoryID: number, filePath: string, view: CommentView) {
     const views = {
       [CommentView.OVERVIEW]: () => {
-        // noop
+        return this.commentModel.findAll({
+          where: {
+            repository_id: repositoryID,
+          },
+          select: ['id'],
+        });
       },
       [CommentView.CODE]: () => {
         return this.commentModel.findAll({
@@ -58,7 +63,14 @@ export class CommentService {
             level: CommentLevel.PROJECT,
           },
           orderBy: [{ column: 'insertion_pos', order: 'asc' }],
-          select: ['*'],
+          select: [
+            'user_id',
+            'username',
+            'profile_image_url',
+            'status',
+            'insertion_pos',
+            'status',
+          ],
         });
       },
     };
