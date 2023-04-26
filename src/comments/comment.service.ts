@@ -64,7 +64,7 @@ export class CommentService {
           },
           orderBy: [{ column: 'insertion_pos', order: 'asc' }],
           select: [
-            'user_id',
+            'content',
             'username',
             'profile_image_url',
             'status',
