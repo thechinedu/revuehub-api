@@ -33,6 +33,7 @@ type FindCommentArgs = {
     column: CommentEntityKeys;
     order: 'asc' | 'desc';
   }[];
+  groupBy?: CommentEntityKeys[];
 };
 
 @Injectable()
@@ -50,18 +51,33 @@ export class CommentModel {
     return db('comments').where(where).select(select).first();
   }
 
-  findAll({
-    where,
-    whereNot = {},
-    orderBy = [],
-    select,
-  }: FindCommentArgs): Promise<(CommentEntity & UserEntity)[]> {
+  findAll({ where, whereNot = {}, orderBy = [], select }: FindCommentArgs) {
     return db('comments')
       .join('users', 'users.id', 'comments.user_id')
       .where(where)
       .whereNot(whereNot)
       .select([...select, 'comments.id', 'comments.created_at'])
       .orderBy(orderBy);
+    // .groupBy('review_summary_id');
+  }
+
+  findAllOverviewComments(repositoryID: number) {
+    return db('comments')
+      .join('users', 'users.id', 'comments.user_id')
+      .where({ repository_id: repositoryID })
+      .select([
+        // 'comments.id',
+        // 'count(content)',
+        // 'review_summary_id',
+        // 'username',
+        // 'file_path',
+        // 'start_line',
+        // 'end_line',
+        // 'level',
+        // 'comments.created_at',
+        // 'comments.updated_at',
+      ])
+      .groupBy('review_summary_id', 'comments.id');
   }
 
   async findOrCreateProjectReviewComment({
