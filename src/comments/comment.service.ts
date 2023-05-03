@@ -46,12 +46,7 @@ export class CommentService {
   fetchAllComments(repositoryID: number, filePath: string, view: CommentView) {
     const views = {
       [CommentView.OVERVIEW]: () => {
-        return this.commentModel.findAll({
-          where: {
-            repository_id: repositoryID,
-          },
-          select: ['id'],
-        });
+        return this.commentModel.findAllOverviewComments(repositoryID);
       },
       [CommentView.CODE]: () => {
         return this.commentModel.findAll({
