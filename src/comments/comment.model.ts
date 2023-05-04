@@ -61,23 +61,61 @@ export class CommentModel {
     // .groupBy('review_summary_id');
   }
 
-  findAllOverviewComments(repositoryID: number) {
-    return db('comments')
+  async findAllOverviewComments(repositoryID: number) {
+    const comments: (CommentEntity & UserEntity)[] = await db('comments')
       .join('users', 'users.id', 'comments.user_id')
       .where({ repository_id: repositoryID })
       .select([
-        // 'comments.id',
-        // 'count(content)',
-        // 'review_summary_id',
-        // 'username',
-        // 'file_path',
-        // 'start_line',
-        // 'end_line',
-        // 'level',
-        // 'comments.created_at',
-        // 'comments.updated_at',
+        'comments.id',
+        'content',
+        'review_summary_id',
+        'username',
+        'file_path',
+        'start_line',
+        'end_line',
+        'level',
+        'comments.created_at',
+        'comments.updated_at',
       ])
-      .groupBy('review_summary_id', 'comments.id');
+      .orderBy([
+        { column: 'level', order: 'desc' },
+        { column: 'created_at', order: 'asc' },
+      ]);
+    const reviewSummaryMap = new Map<number, number>();
+    const res: (Pick<
+      CommentEntity & UserEntity,
+      'id' | 'content' | 'username' | 'created_at'
+    > & { comments: (CommentEntity & UserEntity)[] })[] = [];
+
+    comments.forEach((comment) => {
+      if (
+        comment.level === CommentLevel.PROJECT &&
+        !reviewSummaryMap.has(comment.review_summary_id)
+      ) {
+        const reviewCommentEntity = {
+          id: comment.id,
+          content: comment.content,
+          username: comment.username,
+          created_at: comment.created_at,
+          comments: [],
+        };
+
+        res.push(reviewCommentEntity);
+        reviewSummaryMap.set(comment.review_summary_id, res.length - 1);
+
+        return;
+      }
+
+      const associatedReviewIdx = reviewSummaryMap.get(
+        comment.review_summary_id,
+      );
+
+      if (associatedReviewIdx != undefined) {
+        res[associatedReviewIdx].comments.push(comment);
+      }
+    });
+
+    return res;
   }
 
   async findOrCreateProjectReviewComment({
