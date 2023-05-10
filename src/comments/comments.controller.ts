@@ -11,21 +11,28 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
+  Patch,
+  Param,
+  Delete,
 } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 
 import { CommentSerializer } from './comment.serializer';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment-dto';
+import { UpdateCommentDto } from './dto/update-comment-dto';
 import { createCommentValidator } from './validators/create-comment.validator';
 import { getAllCommentsValidator } from './validators/get-all-comments.validator';
+import { updateCommentValidator } from './validators/update-comment.validator';
 
 export async function validateGetCommentsQueryParams(
   req: Request,
   _res: Response,
   next: NextFunction,
 ) {
-  await new ValidationPipe(getAllCommentsValidator).transform(req.query);
+  await new ValidationPipe(getAllCommentsValidator).transform(req.query, {
+    type: 'query',
+  });
 
   next();
 }
@@ -58,7 +65,6 @@ export class CommentsController {
   }
 
   @Get()
-  @UseInterceptors(ClassSerializerInterceptor)
   async getAllComments(
     @Req() { query: { repository_id, file_path, view } }: RequestWithUserID,
   ) {
@@ -73,11 +79,38 @@ export class CommentsController {
       filePath,
       commentView,
     );
-    // const data = new CommentsSerializer(commentEntities).comments;
 
     return {
       status: 'success',
       data,
+    };
+  }
+
+  @Patch(':commentID')
+  @UsePipes(new ValidationPipe(updateCommentValidator))
+  async updateComment(
+    @Param('commentID') commentID: number,
+    @Body() updateCommentDto: UpdateCommentDto,
+  ) {
+    const commentEntity = await this.commentService.updateComment(
+      commentID,
+      updateCommentDto,
+    );
+    const data = new CommentSerializer(commentEntity);
+
+    return {
+      status: 'success',
+      data,
+    };
+  }
+
+  @Delete(':commentID')
+  async deleteComment(@Param('commentID') commentID: number) {
+    await this.commentService.deleteComment(commentID);
+
+    return {
+      status: 'success',
+      message: 'Comment deleted successfully',
     };
   }
 }

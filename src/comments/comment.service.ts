@@ -6,6 +6,7 @@ import { Queue } from 'bull';
 import { CommentEntity, CommentModel } from './comment.model';
 import { CommentQueueName, CommentQueueJobs } from './comments.processor';
 import { CreateCommentDto } from './dto/create-comment-dto';
+import { UpdateCommentDto } from './dto/update-comment-dto';
 
 @Injectable()
 export class CommentService {
@@ -49,27 +50,18 @@ export class CommentService {
         return this.commentModel.findAllOverviewComments(repositoryID);
       },
       [CommentView.CODE]: () => {
-        return this.commentModel.findAll({
-          where: {
-            repository_id: repositoryID,
-            file_path: filePath,
-          },
-          whereNot: {
-            level: CommentLevel.PROJECT,
-          },
-          orderBy: [{ column: 'insertion_pos', order: 'asc' }],
-          select: [
-            'content',
-            'username',
-            'profile_image_url',
-            'status',
-            'insertion_pos',
-            'status',
-          ],
-        });
+        return this.commentModel.findAllCodeComments(repositoryID, filePath);
       },
     };
 
     return views[view]();
+  }
+
+  updateComment(commentID: number, updateCommentDto: UpdateCommentDto) {
+    return this.commentModel.updateComment(commentID, updateCommentDto);
+  }
+
+  deleteComment(commentID: number) {
+    return this.commentModel.deleteComment(commentID);
   }
 }

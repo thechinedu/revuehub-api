@@ -1,9 +1,10 @@
 import { db } from '@/db';
 import { CommentLevel, CommentStatus } from '@/types';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserEntity, UserEntityKeys } from '../users/user.model';
 
 import { CreateCommentDto } from './dto/create-comment-dto';
+import { UpdateCommentDto } from './dto/update-comment-dto';
 
 export type CommentEntity = {
   id: number;
@@ -51,14 +52,27 @@ export class CommentModel {
     return db('comments').where(where).select(select).first();
   }
 
-  findAll({ where, whereNot = {}, orderBy = [], select }: FindCommentArgs) {
+  findAllCodeComments(repositoryID: number, filePath: string) {
     return db('comments')
       .join('users', 'users.id', 'comments.user_id')
-      .where(where)
-      .whereNot(whereNot)
-      .select([...select, 'comments.id', 'comments.created_at'])
-      .orderBy(orderBy);
-    // .groupBy('review_summary_id');
+      .where({
+        repository_id: repositoryID,
+        file_path: filePath,
+      })
+      .whereNot({
+        level: CommentLevel.PROJECT,
+      })
+      .select([
+        'content',
+        'username',
+        'profile_image_url',
+        'status',
+        'insertion_pos',
+        'status',
+        'comments.id',
+        'comments.created_at',
+      ])
+      .orderBy('insertion_pos', 'asc');
   }
 
   async findAllOverviewComments(repositoryID: number) {
@@ -168,5 +182,31 @@ export class CommentModel {
     )[0];
 
     return updatedComment;
+  }
+
+  async updateComment(
+    commentID: number,
+    updateCommentDto: UpdateCommentDto,
+  ): Promise<CommentEntity> {
+    const updatedComment = await db('comments')
+      .where({ id: commentID })
+      .update(updateCommentDto, ['id', 'content', 'status', 'updated_at']);
+    if (updatedComment.length) return updatedComment[0];
+
+    throw new HttpException(
+      { status: 'fail', message: 'Comment not found' },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+
+  async deleteComment(commentID: number): Promise<void> {
+    const deletedComment = await db('comments').where({ id: commentID }).del();
+
+    if (!deletedComment) {
+      throw new HttpException(
+        { status: 'fail', message: 'Comment not found' },
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }

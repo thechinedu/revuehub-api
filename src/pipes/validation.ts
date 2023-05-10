@@ -1,4 +1,5 @@
 import {
+  ArgumentMetadata,
   HttpException,
   HttpStatus,
   Injectable,
@@ -17,10 +18,12 @@ export type Validator<T = any> = {
 export class ValidationPipe implements PipeTransform {
   constructor(private readonly validator: Validator) {}
 
-  async transform(value: unknown) {
+  async transform(value: unknown, metadata: ArgumentMetadata) {
     const { validator } = this;
 
     try {
+      if (!['body', 'query'].includes(metadata.type)) return value; // only run the validation pipe for request bodies and query paramaters
+
       const transformedValueBeforeValidation =
         (await validator?.beforeValidate?.(value)) || value;
       await validator.schema.validateAsync(transformedValueBeforeValidation, {
