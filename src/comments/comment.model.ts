@@ -52,8 +52,8 @@ export class CommentModel {
     return db('comments').where(where).select(select).first();
   }
 
-  findAllCodeComments(repositoryID: number, filePath: string) {
-    return db('comments')
+  async findAllCodeComments(repositoryID: number, filePath: string) {
+    const comments = await db('comments')
       .join('users', 'users.id', 'comments.user_id')
       .where({
         repository_id: repositoryID,
@@ -69,10 +69,43 @@ export class CommentModel {
         'status',
         'insertion_pos',
         'status',
+        'level',
+        'snippet',
+        'start_line',
+        'end_line',
+        'parent_comment_id',
         'comments.id',
         'comments.created_at',
       ])
-      .orderBy('insertion_pos', 'asc');
+      .orderBy([
+        { column: 'insertion_pos', order: 'asc' },
+        { column: 'created_at', order: 'asc' },
+      ]);
+    const parentComments: (Pick<
+      CommentEntity & UserEntity,
+      'id' | 'content' | 'username' | 'created_at'
+    > & { replies: (CommentEntity & UserEntity)[] })[] = comments
+      .filter((comment) => comment.parent_comment_id == null)
+      .map((comment) => ({ ...comment, replies: [] }));
+    const parentCommentKeys = new Map<number, number>();
+
+    parentComments.forEach((comment, idx) => {
+      parentCommentKeys.set(comment.id, idx);
+    });
+
+    const replies = comments.filter(
+      (comment) => comment.parent_comment_id != null,
+    );
+
+    replies.forEach((reply) => {
+      const parentIdx = parentCommentKeys.get(reply.parent_comment_id);
+
+      if (parentIdx != null) {
+        parentComments[parentIdx].replies.push(reply);
+      }
+    });
+
+    return parentComments;
   }
 
   async findAllOverviewComments(repositoryID: number) {
@@ -88,6 +121,7 @@ export class CommentModel {
         'start_line',
         'end_line',
         'level',
+        'snippet',
         'comments.created_at',
         'comments.updated_at',
       ])
