@@ -5,20 +5,19 @@ name: RevueHub API CI Workflow
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-    
+
     services:
       redis:
         image: redis
@@ -42,21 +41,21 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - name: Install dependencies
-      run: yarn install
-    - name: Lint application
-      run: yarn lint
-    - name: Build application
-      run: yarn build
-    - name: Run tests
-      env:
-        APP_ENV: ${{ secrets.APP_ENV }}
-        APP_SECRET: ${{ secrets.APP_SECRET }}
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      run: yarn test
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Lint application
+        run: yarn lint
+      - name: Build application
+        run: yarn build
+      - name: Run tests
+        env:
+          APP_ENV: ${{ secrets.APP_ENV }}
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: yarn test
