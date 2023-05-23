@@ -4,7 +4,7 @@ export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable('comments', (table) => {
     table.increments();
     table.integer('user_id').unsigned().notNullable();
-    table.string('snippet').nullable();
+    table.text('snippet').nullable();
     table.string('file_path').nullable();
     table.integer('repository_id').unsigned().notNullable();
     table.integer('parent_comment_id').unsigned().nullable();
@@ -24,7 +24,10 @@ export async function up(knex: Knex): Promise<void> {
 
     table.foreign('user_id').references('users.id');
     table.foreign('repository_id').references('repositories.id');
-    table.foreign('parent_comment_id').references('comments.id');
+    table
+      .foreign('parent_comment_id')
+      .references('comments.id')
+      .onDelete('set null');
   });
 }
 
