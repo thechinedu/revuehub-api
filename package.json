@@ -54,7 +54,7 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "^8.0.1",
     "@nestjs/cli": "^9.2.0",
     "@nestjs/schematics": "^9.1.0",
     "@nestjs/testing": "^9.4.0",
