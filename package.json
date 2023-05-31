@@ -12,7 +12,7 @@
     "start": "yarn nest start",
     "start:dev": "yarn nest start --watch",
     "start:debug": "yarn nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main",
     "start:test-server": "DOTENV_CONFIG_PATH=.env.test yarn start",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "jest": "DOTENV_CONFIG_PATH=.env.test node -r dotenv/config ./node_modules/.bin/jest",
@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@nestjs/bull": "^0.6.3",
+    "@nestjs/cli": "^9.2.0",
     "@nestjs/common": "^9.4.0",
     "@nestjs/core": "^9.4.0",
     "@nestjs/jwt": "^10.0.2",
@@ -55,7 +56,6 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.1",
-    "@nestjs/cli": "^9.2.0",
     "@nestjs/schematics": "^9.1.0",
     "@nestjs/testing": "^9.4.0",
     "@types/bull": "^4.10.0",
@@ -102,5 +102,9 @@
     "moduleNameMapper": {
       "@/(.*)": "<rootDir>/$1"
     }
+  },
+  "engines": {
+    "node": ">=18.16.0",
+    "yarn": ">=1.22.19"
   }
 }
