@@ -12,7 +12,7 @@
     "start": "yarn nest start",
     "start:dev": "yarn nest start --watch",
     "start:debug": "yarn nest start --debug --watch",
-    "start:prod": "node dist/src/main",
+    "start:prod": "node src/main",
     "start:test-server": "DOTENV_CONFIG_PATH=.env.test yarn start",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "jest": "DOTENV_CONFIG_PATH=.env.test node -r dotenv/config ./node_modules/.bin/jest",
