@@ -40,6 +40,10 @@ export class RepositoriesController {
     @Param('id') id: string,
   ) {
     await this.repositoryService.addRepoContents(req.userID, +id);
+
+    return {
+      status: 'success',
+    };
   }
 
   @Get('/:id/contents')
