@@ -3,7 +3,7 @@
 FROM node:18-alpine as builder
 WORKDIR /app
 
-COPY ["package.json", "yarn.lock", "tsconfig.json", "tsconfig.build.json", "./"]
+COPY ["package.json", "yarn.lock", "./"]
 
 RUN yarn install && yarn cache clean
 
