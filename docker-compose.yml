@@ -27,7 +27,8 @@ services:
     ports:
       - 6379:6379
   app:
-    image: thechinedu/revuehub-api
+    build:
+      context: .
     depends_on:
       pg:
         condition: service_healthy
