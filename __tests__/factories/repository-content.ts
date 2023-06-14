@@ -7,7 +7,7 @@ export const repositoryContentRequestBody =
     ({
       params: {
         path = '',
-        repository_id = faker.datatype.number(),
+        repository_id = faker.number.int({ max: 10000 }),
         sha = faker.git.commitSha(),
         type = 'tree',
       },

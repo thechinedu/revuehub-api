@@ -7,7 +7,7 @@ export const repositoryBlobRequestBody =
     ({
       params: {
         content = Buffer.from(faker.lorem.text()).toString('base64'),
-        repository_content_id = faker.datatype.number(),
+        repository_content_id = faker.number.int({ max: 10000 }),
       },
     }) => ({
       content,

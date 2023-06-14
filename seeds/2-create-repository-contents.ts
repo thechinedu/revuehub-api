@@ -370,7 +370,7 @@ function getRepositoryContentsDto(repository_id: number) {
     repository_id,
     path,
     type,
-    sha: faker.datatype.uuid(),
+    sha: faker.string.uuid(),
   }));
 }
 

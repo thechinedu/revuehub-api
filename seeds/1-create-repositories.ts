@@ -5,15 +5,15 @@ function getUserDto() {
   return {
     email: faker.internet.email(),
     username: faker.internet.userName(),
-    full_name: faker.name.fullName(),
+    full_name: faker.person.fullName(),
   };
 }
 
 function getRepositoryDto(user_id: number) {
   return {
     user_id,
-    snapshot_id: faker.datatype.number(),
-    node_id: faker.datatype.uuid(),
+    snapshot_id: faker.number.int({ max: 10000 }),
+    node_id: faker.string.uuid(),
     name: `thechinedu/revuehub-api`,
     description:
       'Review Github repositories without the need for pull requests',

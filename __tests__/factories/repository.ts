@@ -5,12 +5,12 @@ import { Factory } from 'fishery';
 export const repositoryRequestBody = Factory.define<CreateRepositoryDto>(
   ({
     params: {
-      name = faker.company.bsNoun(),
-      description = faker.company.bs(),
-      user_id = faker.datatype.number(),
-      snapshot_id = faker.datatype.number(),
-      node_id = faker.datatype.uuid(),
-      last_updated = faker.datatype.datetime(),
+      name = faker.company.buzzNoun(),
+      description = faker.company.buzzPhrase(),
+      user_id = faker.number.int({ max: 10000 }),
+      snapshot_id = faker.number.int({ max: 10000 }),
+      node_id = faker.string.uuid(),
+      last_updated = faker.date.anytime(),
       default_branch = 'main',
     },
   }) => ({
