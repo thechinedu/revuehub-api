@@ -29,7 +29,7 @@
   "dependencies": {
     "@nestjs/bull": "^0.6.3",
     "@nestjs/cli": "^9.2.0",
-    "@nestjs/common": "^9.4.0",
+    "@nestjs/common": "^9.4.3",
     "@nestjs/core": "^9.4.0",
     "@nestjs/jwt": "^10.0.2",
     "@nestjs/platform-express": "^9.4.1",
