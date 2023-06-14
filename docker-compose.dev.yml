@@ -19,7 +19,6 @@ services:
     image: redis:6.2-alpine
     container_name: revuehub-api-redis
     restart: always
-    port: 6379
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 1s
@@ -27,9 +26,37 @@ services:
       retries: 5
     ports:
       - 6379:6379
+  pg-test:
+    image: postgres:15.3-alpine
+    container_name: revuehub-api-pg-test
+    restart: always
+    healthcheck:
+      test: ['CMD', 'pg_isready']
+      interval: 1s
+      timeout: 2s
+      retries: 5
+    user: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - 5433:5432
+  redis-test:
+    image: redis:6.2-alpine
+    container_name: revuehub-api-redis-test
+    restart: always
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 1s
+      timeout: 2s
+      retries: 5
+    ports:
+      - 7777:6379
   app:
     build:
       context: .
+      target: builder
     depends_on:
       pg:
         condition: service_healthy
