@@ -1,3 +1,4 @@
+import { db } from '@/db';
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
@@ -17,6 +18,12 @@ async function bootstrap() {
   });
 
   app.use(cookieParser());
+
+  console.log('Running migrations...');
+
+  await db.migrate.latest();
+
+  console.log('Migrations complete');
 
   await app.listen(process.env.PORT as string);
 }
