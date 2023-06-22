@@ -16,4 +16,5 @@ WORKDIR /app
 COPY --from=builder /app/package.json /app/yarn.lock ./
 RUN yarn install --production --frozen-lockfile
 COPY --from=builder /app/dist ./
+RUN ["yarn", "migrate:latest"]
 CMD ["node", "src/main.js"]
